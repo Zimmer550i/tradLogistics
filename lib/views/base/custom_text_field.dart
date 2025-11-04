@@ -45,19 +45,19 @@ class _CustomTextFieldState extends State<CustomTextField> {
   final double horizontalPadding = 14;
   final double verticalPaddingMultiline = 14;
   final double titleSpacing = 4;
-  final double iconSpacing = 12;
-  final double iconSize = 20;
+  final double iconSpacing = 8;
+  final double iconSize = 24;
   final double errorTextPadding = 24;
   final double borderWidth = 1.0;
 
-  final Color borderColorFocused = AppColors.gray.shade900;
-  final Color borderColorUnfocused = AppColors.gray.shade100;
-  final Color hintTextColor = AppColors.gray[300]!;
-  final Color textColor = AppColors.gray.shade900;
-  final Color iconColorFocused = AppColors.gray.shade900;
-  final Color iconColorUnfocused = AppColors.gray.shade300;
-  final Color titleTextColor = AppColors.gray.shade500;
-  final Color errorTextColor = AppColors.red;
+  final Color borderColorFocused = AppColors.blue;
+  final Color borderColorUnfocused = AppColors.neutral.shade300;
+  final Color hintTextColor = AppColors.neutral[300]!;
+  final Color textColor = AppColors.neutral.shade900;
+  final Color iconColorFocused = AppColors.blue;
+  final Color iconColorUnfocused = AppColors.neutral.shade600;
+  final Color titleTextColor = AppColors.neutral.shade600;
+  final Color errorTextColor = AppColors.error;
 
   final Duration animationDuration = const Duration(milliseconds: 100);
 
@@ -115,9 +115,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(widget.radius),
               border: Border.all(
-                color: isFocused
-                    ? borderColorFocused
-                    : borderColorUnfocused,
+                color: isFocused ? borderColorFocused : borderColorUnfocused,
                 width: borderWidth,
               ),
             ),
@@ -126,15 +124,15 @@ class _CustomTextFieldState extends State<CustomTextField> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 if (widget.leading != null)
-                  SvgPicture.asset(
-                    widget.leading!,
+                  SizedBox(
                     height: iconSize,
                     width: iconSize,
-                    colorFilter: ColorFilter.mode(
-                      isFocused
-                          ? iconColorFocused
-                          : iconColorUnfocused,
-                      BlendMode.srcIn,
+                    child: SvgPicture.asset(
+                      widget.leading!,
+                      colorFilter: ColorFilter.mode(
+                        isFocused ? iconColorFocused : iconColorUnfocused,
+                        BlendMode.srcIn,
+                      ),
                     ),
                   ),
                 Expanded(
@@ -142,7 +140,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                     focusNode: focusNode,
                     controller: widget.controller,
                     maxLines: widget.lines,
-                    cursorColor: textColor,
+                    cursorColor: borderColorFocused,
                     keyboardType: widget.textInputType,
                     obscureText: isObscured,
                     enabled: !widget.isDisabled && widget.onTap == null,
@@ -152,30 +150,26 @@ class _CustomTextFieldState extends State<CustomTextField> {
                         focusNode.unfocus();
                       });
                     },
-                    style: AppTexts.tsmm.copyWith(
-                      color: textColor,
-                    ),
+                    style: AppTexts.tsmm.copyWith(color: textColor),
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       isDense: true,
                       contentPadding: EdgeInsets.zero,
                       hintText: widget.hintText,
-                      hintStyle: AppTexts.tsmr.copyWith(
-                        color: hintTextColor,
-                      ),
+                      hintStyle: AppTexts.tsmr.copyWith(color: hintTextColor),
                     ),
                   ),
                 ),
                 if (widget.trailing != null)
-                  SvgPicture.asset(
-                    widget.trailing!,
+                  SizedBox(
                     height: iconSize,
                     width: iconSize,
-                    colorFilter: ColorFilter.mode(
-                      isFocused
-                          ? iconColorFocused
-                          : iconColorUnfocused,
-                      BlendMode.srcIn,
+                    child: SvgPicture.asset(
+                      widget.trailing!,
+                      colorFilter: ColorFilter.mode(
+                        isFocused ? iconColorFocused : iconColorUnfocused,
+                        BlendMode.srcIn,
+                      ),
                     ),
                   ),
                 if (widget.isPassword)
@@ -186,12 +180,18 @@ class _CustomTextFieldState extends State<CustomTextField> {
                       });
                     },
                     behavior: HitTestBehavior.translucent,
-                    child: SvgPicture.asset(
-                      isObscured ? "assets/icons/eye_off.svg" : "assets/icons/eye.svg",
+                    child: SizedBox(
+                      height: iconSize,
                       width: iconSize,
-                      colorFilter: ColorFilter.mode(
-                        textColor,
-                        BlendMode.srcIn,
+                      child: SvgPicture.asset(
+                        isObscured
+                            ? "assets/icons/eye_off.svg"
+                            : "assets/icons/eye.svg",
+                        width: iconSize,
+                        colorFilter: ColorFilter.mode(
+                          isFocused ? iconColorFocused : iconColorUnfocused,
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ),
                   ),

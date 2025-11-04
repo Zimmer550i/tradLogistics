@@ -35,12 +35,13 @@ class _CustomDropDownState extends State<CustomDropDown> {
   final double iconSize = 24;
   final double borderWidth = 0.5;
 
-  final Color backgroundColor = AppColors.gray[50]!;
-  final Color borderColorExpanded = AppColors.gray.shade900;
-  final Color borderColorCollapsed = AppColors.gray.shade100;
-  final Color hintTextColor = AppColors.gray.shade300;
-  final Color textColor = AppColors.gray.shade900;
-  final Color dividerColor = AppColors.gray;
+  final Color backgroundColor = AppColors.neutral[50]!;
+  final Color borderColorExpanded = AppColors.blue;
+  final Color borderColorCollapsed = AppColors.neutral.shade300;
+  final Color hintTextColor = AppColors.neutral.shade300;
+  final Color titleColor = AppColors.neutral.shade600;
+  final Color textColor = AppColors.neutral.shade900;
+  final Color dividerColor = AppColors.neutral.shade300;
 
   final Duration animationDuration = const Duration(milliseconds: 100);
 
@@ -65,7 +66,7 @@ class _CustomDropDownState extends State<CustomDropDown> {
             padding: EdgeInsets.only(bottom: verticalSpacing),
             child: Text(
               widget.title!,
-              style: AppTexts.txsm.copyWith(color: hintTextColor),
+              style: AppTexts.txsm.copyWith(color: titleColor),
             ),
           ),
 
@@ -101,9 +102,7 @@ class _CustomDropDownState extends State<CustomDropDown> {
                             )
                           : Text(
                               currentVal!,
-                              style: AppTexts.tsmr.copyWith(
-                                color: textColor,
-                              ),
+                              style: AppTexts.tsmr.copyWith(color: textColor),
                             ),
                       const Spacer(),
                       AnimatedRotation(
@@ -138,7 +137,9 @@ class _CustomDropDownState extends State<CustomDropDown> {
                                 },
                                 child: Container(
                                   height: widget.height,
-                                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: horizontalPadding,
+                                  ),
                                   decoration: BoxDecoration(
                                     border: Border(
                                       top: BorderSide(

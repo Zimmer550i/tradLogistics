@@ -45,7 +45,7 @@ class ProfilePicture extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(2),
             decoration: BoxDecoration(
-              color: AppColors.gray.shade100,
+              color: AppColors.neutral.shade100,
               shape: BoxShape.circle,
             ),
             child: ClipRRect(
@@ -68,7 +68,7 @@ class ProfilePicture extends StatelessWidget {
                             child: CircularProgressIndicator(
                               value: progress.progress,
                               strokeWidth: 2,
-                              color: AppColors.blue[400],
+                              color: AppColors.blue,
                             ),
                           ),
                         );
@@ -77,7 +77,7 @@ class ProfilePicture extends StatelessWidget {
                         return Container(
                           width: size,
                           height: size,
-                          color: AppColors.blue[100],
+                          color: AppColors.blue,
                           child: Icon(Icons.error, color: Colors.blue),
                         );
                       },
@@ -91,13 +91,13 @@ class ProfilePicture extends StatelessWidget {
                       padding: EdgeInsets.all(size * 0.17),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.blue[300]!),
+                        border: Border.all(color: AppColors.blue),
                       ),
                       child: Center(
                         child: SvgPicture.asset(
                           "assets/icons/bell.svg",
                           colorFilter: ColorFilter.mode(
-                            AppColors.blue[400]!,
+                            AppColors.blue,
                             BlendMode.srcIn,
                           ),
                         ),

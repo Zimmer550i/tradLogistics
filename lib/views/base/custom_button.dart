@@ -44,14 +44,16 @@ class _CustomButtonState extends State<CustomButton> {
   final double loaderPadding = 8.0;
   final double loaderStrokeWidth = 4.0;
 
-  final Color primaryColor = AppColors.gray.shade900;
-  final Color secondaryColor = AppColors.gray[50]!;
-  final Color disabledColor = AppColors.gray.shade300;
-  final Color borderColor = AppColors.gray.shade900;
+  final Color gradientColor1 = Color(0xff0776BD);
+  final Color gradientColor2 = Color(0xff51C7E1);
+  final Color primaryColor = AppColors.neutral.shade900;
+  final Color secondaryColor = AppColors.neutral.shade200;
+  final Color disabledColor = AppColors.neutral.shade300;
+  final Color borderColor = AppColors.neutral.shade900;
   final Color primaryTextColor = AppColors.white;
-  final Color secondaryTextColor = AppColors.gray.shade900;
-  final Color loaderColorPrimary = AppColors.gray[50]!;
-  final Color loaderColorSecondary = AppColors.gray;
+  final Color secondaryTextColor = AppColors.neutral.shade900;
+  final Color loaderColorPrimary = AppColors.neutral[50]!;
+  final Color loaderColorSecondary = AppColors.neutral;
 
   @override
   Widget build(BuildContext context) {
@@ -64,13 +66,23 @@ class _CustomButtonState extends State<CustomButton> {
         width: widget.width,
         padding: EdgeInsets.symmetric(horizontal: widget.padding),
         decoration: BoxDecoration(
+          gradient: widget.isSecondary
+              ? null
+              : LinearGradient(
+                  begin: AlignmentGeometry.centerLeft,
+                  end: AlignmentGeometry.centerRight,
+                  colors: [gradientColor2, gradientColor1],
+                  stops: [
+                    0.0103,
+                    0.4301,
+                  ],
+                ),
           color: widget.isSecondary
               ? secondaryColor
               : widget.isDisabled
-                  ? disabledColor
-                  : primaryColor,
+              ? disabledColor
+              : primaryColor,
           borderRadius: BorderRadius.circular(widget.radius),
-          border: Border.all(color: borderColor),
         ),
         child: widget.isLoading
             ? FittedBox(

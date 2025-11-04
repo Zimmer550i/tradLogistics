@@ -19,7 +19,7 @@ Future<File?> customImagePicker({isCircular = true, isSquared = true}) async {
         AndroidUiSettings(
           toolbarTitle: 'Crop your image',
           toolbarColor: AppColors.black,
-          toolbarWidgetColor: Colors.blue[50],
+          toolbarWidgetColor: Colors.blue,
           backgroundColor: AppColors.black,
           statusBarColor: AppColors.blue,
           cropStyle: isCircular ? CropStyle.circle : CropStyle.rectangle,

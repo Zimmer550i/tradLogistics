@@ -15,7 +15,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: AppColors.white,
+      backgroundColor: AppColors.neutral[50],
       automaticallyImplyLeading: false,
       titleSpacing: 0,
       title: SizedBox(
@@ -39,7 +39,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               child: Text(
                 title,
                 textAlign: TextAlign.center,
-                style: AppTexts.tmdm.copyWith(color: AppColors.gray.shade900),
+                style: AppTexts.tmdm.copyWith(
+                  color: AppColors.neutral.shade900,
+                ),
               ),
             ),
             const SizedBox(width: 62),

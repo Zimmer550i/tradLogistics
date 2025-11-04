@@ -16,7 +16,7 @@ void main() async {
   Map<String, Map<String, String>> languages = await di.init();
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(
-      statusBarColor: AppColors.indigo[600],
+      statusBarColor: AppColors.blue,
       statusBarIconBrightness: Brightness.light,
     ),
   );

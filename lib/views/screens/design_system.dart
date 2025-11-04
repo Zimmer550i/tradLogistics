@@ -22,6 +22,7 @@ class _DesignSystemState extends State<DesignSystem> {
       appBar: CustomAppBar(title: "Design System"),
       bottomNavigationBar: CustomBottomNavbar(
         index: index,
+        isUser: false,
         onChanged: (val) {
           setState(() {
             index = val;
@@ -46,8 +47,8 @@ class _DesignSystemState extends State<DesignSystem> {
             CustomDropDown(
               title: "Sample Dropdown",
               options: ["Options 1", "Options 2"]),
-            CustomButton(text: "Button"),
-            CustomButton(text: "Secondary Button", isSecondary: true),
+            CustomButton(text: "Button", isLoading: true,),
+            CustomButton(text: "Secondary Button", isSecondary: true, isLoading: true),
           ],
         ),
       ),

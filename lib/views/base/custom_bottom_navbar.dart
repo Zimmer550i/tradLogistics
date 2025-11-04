@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:template/utils/app_colors.dart';
+import 'package:template/utils/app_texts.dart';
 import 'package:template/utils/custom_svg.dart';
 
 class CustomBottomNavbar extends StatelessWidget {
   final int index;
   final Function(int) onChanged;
+  final bool isUser;
   const CustomBottomNavbar({
     super.key,
+    this.isUser = true,
     required this.index,
     required this.onChanged,
   });
@@ -14,11 +17,13 @@ class CustomBottomNavbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Theme(
-      data: Theme.of(context).copyWith(canvasColor: AppColors.gray.shade900),
+      data: Theme.of(context).copyWith(canvasColor: AppColors.white),
       child: BottomNavigationBar(
-        backgroundColor: AppColors.gray.shade900,
         currentIndex: index,
         onTap: onChanged,
+        selectedItemColor: AppColors.blue,
+        unselectedLabelStyle: AppTexts.txsm,
+        selectedLabelStyle: AppTexts.txsm,
         items: [
           BottomNavigationBarItem(
             icon: CustomSvg(asset: "assets/icons/home.svg"),
@@ -26,14 +31,15 @@ class CustomBottomNavbar extends StatelessWidget {
             label: "Home",
           ),
           BottomNavigationBarItem(
-            icon: CustomSvg(asset: "assets/icons/services.svg"),
-            activeIcon: CustomSvg(asset: "assets/icons/services_active.svg"),
-            label: "Services",
+            icon: CustomSvg(asset: "assets/icons/orders.svg"),
+            activeIcon: CustomSvg(asset: "assets/icons/orders_active.svg"),
+            label: "Orders",
           ),
+          if(!isUser)
           BottomNavigationBarItem(
-            icon: CustomSvg(asset: "assets/icons/sell.svg"),
-            activeIcon: CustomSvg(asset: "assets/icons/sell_active.svg"),
-            label: "Sell",
+            icon: CustomSvg(asset: "assets/icons/earnings.svg"),
+            activeIcon: CustomSvg(asset: "assets/icons/earnings_active.svg"),
+            label: "Earnings",
           ),
           BottomNavigationBarItem(
             icon: CustomSvg(asset: "assets/icons/mail.svg"),
@@ -41,9 +47,9 @@ class CustomBottomNavbar extends StatelessWidget {
             label: "Inbox",
           ),
           BottomNavigationBarItem(
-            icon: CustomSvg(asset: "assets/icons/settings.svg"),
-            activeIcon: CustomSvg(asset: "assets/icons/settings_active.svg"),
-            label: "Settings",
+            icon: CustomSvg(asset: "assets/icons/user.svg"),
+            activeIcon: CustomSvg(asset: "assets/icons/user_active.svg"),
+            label: "Account",
           ),
         ],
       ),
