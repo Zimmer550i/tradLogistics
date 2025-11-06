@@ -167,7 +167,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
                     child: SvgPicture.asset(
                       widget.trailing!,
                       colorFilter: ColorFilter.mode(
-                        isFocused ? iconColorFocused : iconColorUnfocused,
+                        widget.onTap != null
+                            ? hintTextColor
+                            : isFocused
+                            ? iconColorFocused
+                            : iconColorUnfocused,
                         BlendMode.srcIn,
                       ),
                     ),

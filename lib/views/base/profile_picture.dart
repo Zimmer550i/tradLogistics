@@ -91,15 +91,13 @@ class ProfilePicture extends StatelessWidget {
                       padding: EdgeInsets.all(size * 0.17),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.blue),
+                        border: Border.all(width: 3, color: AppColors.blue),
                       ),
-                      child: Center(
-                        child: SvgPicture.asset(
-                          "assets/icons/bell.svg",
-                          colorFilter: ColorFilter.mode(
-                            AppColors.blue,
-                            BlendMode.srcIn,
-                          ),
+                      child: SvgPicture.asset(
+                        "assets/icons/user.svg",
+                        colorFilter: ColorFilter.mode(
+                          AppColors.blue,
+                          BlendMode.srcIn,
                         ),
                       ),
                     ),

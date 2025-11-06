@@ -13,6 +13,7 @@ class CustomButton extends StatefulWidget {
   final bool isLoading;
   final String? leading;
   final String? trailing;
+  final Color? iconColor;
   final double padding;
   final double radius;
   final double fontSize;
@@ -23,6 +24,7 @@ class CustomButton extends StatefulWidget {
     this.onTap,
     this.leading,
     this.trailing,
+    this.iconColor,
     this.padding = 40,
     this.radius = 8,
     this.isSecondary = false,
@@ -48,7 +50,7 @@ class _CustomButtonState extends State<CustomButton> {
   final Color gradientColor2 = Color(0xff51C7E1);
   final Color primaryColor = AppColors.neutral.shade900;
   final Color secondaryColor = AppColors.neutral.shade200;
-  final Color disabledColor = AppColors.neutral.shade300;
+  final Color disabledColor = AppColors.neutral.shade400;
   final Color borderColor = AppColors.neutral.shade900;
   final Color primaryTextColor = AppColors.white;
   final Color secondaryTextColor = AppColors.neutral.shade900;
@@ -72,10 +74,7 @@ class _CustomButtonState extends State<CustomButton> {
                   begin: AlignmentGeometry.centerLeft,
                   end: AlignmentGeometry.centerRight,
                   colors: [gradientColor2, gradientColor1],
-                  stops: [
-                    0.0103,
-                    0.4301,
-                  ],
+                  stops: [0.0103, 0.4301],
                 ),
           color: widget.isSecondary
               ? secondaryColor
@@ -85,16 +84,13 @@ class _CustomButtonState extends State<CustomButton> {
           borderRadius: BorderRadius.circular(widget.radius),
         ),
         child: widget.isLoading
-            ? FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Padding(
-                  padding: EdgeInsets.all(loaderPadding),
-                  child: CircularProgressIndicator(
-                    color: widget.isSecondary
-                        ? loaderColorSecondary
-                        : loaderColorPrimary,
-                    strokeWidth: loaderStrokeWidth,
-                  ),
+            ? Padding(
+                padding: EdgeInsets.all(loaderPadding),
+                child: CircularProgressIndicator(
+                  color: widget.isSecondary
+                      ? loaderColorSecondary
+                      : loaderColorPrimary,
+                  strokeWidth: loaderStrokeWidth,
                 ),
               )
             : Row(
@@ -107,18 +103,17 @@ class _CustomButtonState extends State<CustomButton> {
                       widget.leading!,
                       height: widget.iconSize,
                       width: widget.iconSize,
-                      colorFilter: ColorFilter.mode(
-                        widget.isSecondary
-                            ? secondaryTextColor
-                            : primaryTextColor,
-                        BlendMode.srcIn,
-                      ),
+                      colorFilter: widget.iconColor != null
+                          ? ColorFilter.mode(widget.iconColor!, BlendMode.srcIn)
+                          : null,
                     ),
                   Text(
                     widget.text,
                     style: AppTexts.tsmm.copyWith(
                       fontSize: widget.fontSize,
-                      color: widget.isSecondary
+                      color: widget.isDisabled
+                          ? disabledColor
+                          : widget.isSecondary
                           ? secondaryTextColor
                           : primaryTextColor,
                     ),
@@ -129,7 +124,9 @@ class _CustomButtonState extends State<CustomButton> {
                       height: widget.iconSize,
                       width: widget.iconSize,
                       colorFilter: ColorFilter.mode(
-                        widget.isSecondary
+                        widget.isDisabled
+                            ? disabledColor
+                            : widget.isSecondary
                             ? secondaryTextColor
                             : primaryTextColor,
                         BlendMode.srcIn,
