@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/views/base/custom_button.dart';
+import 'package:template/views/screens/common/app.dart';
 
 class UserWelcome extends StatelessWidget {
   const UserWelcome({super.key});
@@ -25,7 +27,12 @@ class UserWelcome extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               Spacer(flex: 2),
-              CustomButton(onTap: () {}, text: "Continue"),
+              CustomButton(
+                onTap: () {
+                  Get.to(() => App(), routeName: "/app");
+                },
+                text: "Continue",
+              ),
               const SizedBox(height: 16),
             ],
           ),

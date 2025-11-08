@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/views/base/custom_button.dart';
+import 'package:template/views/screens/common/app.dart';
 
 class DriverWelcome extends StatelessWidget {
   const DriverWelcome({super.key});
@@ -33,7 +35,12 @@ class DriverWelcome extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               Spacer(flex: 2),
-              CustomButton(onTap: () {}, text: "Go Online"),
+              CustomButton(
+                onTap: () {
+                  Get.to(() => App(isUser: false), routeName: "/app");
+                },
+                text: "Go Online",
+              ),
               const SizedBox(height: 16),
             ],
           ),
