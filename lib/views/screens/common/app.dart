@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:template/views/base/custom_bottom_navbar.dart';
 import 'package:template/views/screens/common/account.dart';
 import 'package:template/views/screens/common/inbox.dart';
+import 'package:template/views/screens/common/orders.dart';
+import 'package:template/views/screens/driver/earnings/driver_earnings.dart';
 
 class App extends StatefulWidget {
   final bool isUser;
@@ -13,11 +15,11 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   int index = 0;
-  List<Widget> userPages = [FlutterLogo(), FlutterLogo(), Inbox(), Account()];
+  List<Widget> userPages = [FlutterLogo(), Orders(), Inbox(), Account()];
   List<Widget> driverPages = [
     FlutterLogo(),
-    FlutterLogo(),
-    FlutterLogo(),
+    Orders(canSeePast: false),
+    DriverEarnings(),
     Inbox(),
     Account(),
   ];
