@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:template/views/base/custom_bottom_navbar.dart';
 import 'package:template/views/screens/common/account.dart';
+import 'package:template/views/screens/common/inbox.dart';
 
 class App extends StatefulWidget {
   final bool isUser;
@@ -12,17 +13,12 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   int index = 0;
-  List<Widget> userPages = [
-    FlutterLogo(),
-    FlutterLogo(),
-    FlutterLogo(),
-    Account(),
-  ];
+  List<Widget> userPages = [FlutterLogo(), FlutterLogo(), Inbox(), Account()];
   List<Widget> driverPages = [
     FlutterLogo(),
     FlutterLogo(),
     FlutterLogo(),
-    FlutterLogo(),
+    Inbox(),
     Account(),
   ];
 

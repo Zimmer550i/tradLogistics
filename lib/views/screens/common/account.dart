@@ -6,6 +6,7 @@ import 'package:template/utils/custom_svg.dart';
 import 'package:template/views/base/custom_button.dart';
 import 'package:template/views/base/home_bar.dart';
 import 'package:template/views/base/profile_picture.dart';
+import 'package:template/views/screens/common/chat.dart';
 import 'package:template/views/screens/common/edit_profile.dart';
 import 'package:template/views/screens/common/info.dart';
 import 'package:template/views/screens/driver/profile/driver_wallet.dart';
@@ -62,7 +63,9 @@ class Account extends StatelessWidget {
                     children: [
                       Expanded(
                         child: GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            Get.to(() => Chat(isSupport: true));
+                          },
                           child: Container(
                             padding: EdgeInsets.symmetric(vertical: 8),
                             decoration: BoxDecoration(
