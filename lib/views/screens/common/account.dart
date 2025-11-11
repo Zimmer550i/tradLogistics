@@ -6,6 +6,7 @@ import 'package:template/utils/custom_svg.dart';
 import 'package:template/views/base/custom_button.dart';
 import 'package:template/views/base/home_bar.dart';
 import 'package:template/views/base/profile_picture.dart';
+import 'package:template/views/screens/auth/login.dart';
 import 'package:template/views/screens/common/chat.dart';
 import 'package:template/views/screens/common/edit_profile.dart';
 import 'package:template/views/screens/common/info.dart';
@@ -173,7 +174,12 @@ class Account extends StatelessWidget {
                             const SizedBox(height: 24),
                             Divider(),
                             const SizedBox(height: 24),
-                            CustomButton(text: "Yes, Logout"),
+                            CustomButton(
+                              onTap: () {
+                                Get.offAll(() => Login());
+                              },
+                              text: "Yes, Logout",
+                            ),
                             const SizedBox(height: 12),
                             CustomButton(text: "Cancel", isSecondary: true),
                             const SizedBox(height: 24),

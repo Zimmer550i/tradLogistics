@@ -138,9 +138,6 @@ class _DriverHomeState extends State<DriverHome> {
                   },
                   secondaryButtonText: "Decline",
                   secondaryAction: () {
-                    setState(() {
-                      state--;
-                    });
                   },
                 ),
                 OrderWidget(

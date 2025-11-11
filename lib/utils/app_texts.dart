@@ -4,28 +4,28 @@ import 'package:template/utils/app_colors.dart';
 class AppTexts {
   // Display
   static TextStyle d2xlr = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 72,
     height: 88 / 72,
     fontWeight: FontWeight.normal,
     color: AppColors.neutral.shade900,
   );
   static TextStyle d2xlm = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 72,
     height: 88 / 72,
     fontWeight: FontWeight.w500,
     color: AppColors.neutral.shade900,
   );
   static TextStyle d2xls = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 72,
     height: 88 / 72,
     fontWeight: FontWeight.w600,
     color: AppColors.neutral.shade900,
   );
   static TextStyle d2xlb = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 72,
     height: 88 / 72,
     fontWeight: FontWeight.w700,
@@ -33,28 +33,28 @@ class AppTexts {
   );
 
   static TextStyle dxlr = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 60,
     height: 72 / 60,
     fontWeight: FontWeight.normal,
     color: AppColors.neutral.shade900,
   );
   static TextStyle dxlm = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 60,
     height: 72 / 60,
     fontWeight: FontWeight.w500,
     color: AppColors.neutral.shade900,
   );
   static TextStyle dxls = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 60,
     height: 72 / 60,
     fontWeight: FontWeight.w600,
     color: AppColors.neutral.shade900,
   );
   static TextStyle dxlb = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 60,
     height: 72 / 60,
     fontWeight: FontWeight.w700,
@@ -62,28 +62,28 @@ class AppTexts {
   );
 
   static TextStyle dlgr = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 48,
     height: 60 / 48,
     fontWeight: FontWeight.normal,
     color: AppColors.neutral.shade900,
   );
   static TextStyle dlgm = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 48,
     height: 60 / 48,
     fontWeight: FontWeight.w500,
     color: AppColors.neutral.shade900,
   );
   static TextStyle dlgs = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 48,
     height: 60 / 48,
     fontWeight: FontWeight.w600,
     color: AppColors.neutral.shade900,
   );
   static TextStyle dlgb = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 48,
     height: 60 / 48,
     fontWeight: FontWeight.w700,
@@ -91,28 +91,28 @@ class AppTexts {
   );
 
   static TextStyle dmdr = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 36,
     height: 44 / 36,
     fontWeight: FontWeight.normal,
     color: AppColors.neutral.shade900,
   );
   static TextStyle dmdm = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 36,
     height: 44 / 36,
     fontWeight: FontWeight.w500,
     color: AppColors.neutral.shade900,
   );
   static TextStyle dmds = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 36,
     height: 44 / 36,
     fontWeight: FontWeight.w600,
     color: AppColors.neutral.shade900,
   );
   static TextStyle dmdb = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 36,
     height: 44 / 36,
     fontWeight: FontWeight.w700,
@@ -120,28 +120,28 @@ class AppTexts {
   );
 
   static TextStyle dsmr = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 30,
     height: 36 / 30,
     fontWeight: FontWeight.normal,
     color: AppColors.neutral.shade900,
   );
   static TextStyle dsmm = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 30,
     height: 36 / 30,
     fontWeight: FontWeight.w500,
     color: AppColors.neutral.shade900,
   );
   static TextStyle dsms = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 30,
     height: 36 / 30,
     fontWeight: FontWeight.w600,
     color: AppColors.neutral.shade900,
   );
   static TextStyle dsmb = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 30,
     height: 36 / 30,
     fontWeight: FontWeight.bold,
@@ -149,7 +149,7 @@ class AppTexts {
   );
 
   static TextStyle dxsr = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 24,
     height: 32 / 24,
     fontWeight: FontWeight.normal,
@@ -157,7 +157,7 @@ class AppTexts {
   );
 
   static TextStyle dxsm = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 24,
     height: 32 / 24,
     fontWeight: FontWeight.w500,
@@ -165,7 +165,7 @@ class AppTexts {
   );
 
   static TextStyle txlr = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 20,
     height: 30 / 20,
     fontWeight: FontWeight.normal,
@@ -173,7 +173,7 @@ class AppTexts {
   );
 
   static TextStyle txlm = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 20,
     height: 30 / 20,
     fontWeight: FontWeight.w500,
@@ -181,7 +181,7 @@ class AppTexts {
   );
 
   static TextStyle txls = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 20,
     height: 30 / 20,
     fontWeight: FontWeight.w600,
@@ -189,7 +189,7 @@ class AppTexts {
   );
 
   static TextStyle txlb = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 20,
     height: 30 / 20,
     fontWeight: FontWeight.bold,
@@ -197,7 +197,7 @@ class AppTexts {
   );
 
   static TextStyle tlgr = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 18,
     height: 28 / 18,
     fontWeight: FontWeight.normal,
@@ -205,7 +205,7 @@ class AppTexts {
   );
 
   static TextStyle tlgm = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 18,
     height: 28 / 18,
     fontWeight: FontWeight.w500,
@@ -213,7 +213,7 @@ class AppTexts {
   );
 
   static TextStyle tlgs = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 18,
     height: 28 / 18,
     fontWeight: FontWeight.w600,
@@ -221,7 +221,7 @@ class AppTexts {
   );
 
   static TextStyle tlgb = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 18,
     height: 28 / 18,
     fontWeight: FontWeight.bold,
@@ -229,7 +229,7 @@ class AppTexts {
   );
 
   static TextStyle tmdr = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 16,
     height: 24 / 16,
     fontWeight: FontWeight.normal,
@@ -237,7 +237,7 @@ class AppTexts {
   );
 
   static TextStyle tmdm = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 16,
     height: 24 / 16,
     fontWeight: FontWeight.w500,
@@ -245,7 +245,7 @@ class AppTexts {
   );
 
   static TextStyle tmds = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 16,
     height: 24 / 16,
     fontWeight: FontWeight.w600,
@@ -253,7 +253,7 @@ class AppTexts {
   );
 
   static TextStyle tmdb = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 16,
     height: 24 / 16,
     fontWeight: FontWeight.bold,
@@ -261,7 +261,7 @@ class AppTexts {
   );
 
   static TextStyle tsmr = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 14,
     height: 20 / 14,
     fontWeight: FontWeight.normal,
@@ -269,7 +269,7 @@ class AppTexts {
   );
 
   static TextStyle tsmm = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 14,
     height: 20 / 14,
     fontWeight: FontWeight.w500,
@@ -277,7 +277,7 @@ class AppTexts {
   );
 
   static TextStyle tsms = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 14,
     height: 20 / 14,
     fontWeight: FontWeight.w600,
@@ -285,7 +285,7 @@ class AppTexts {
   );
 
   static TextStyle tsmb = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 14,
     height: 20 / 14,
     fontWeight: FontWeight.bold,
@@ -293,7 +293,7 @@ class AppTexts {
   );
 
   static TextStyle txsr = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 12,
     height: 18 / 12,
     fontWeight: FontWeight.normal,
@@ -301,7 +301,7 @@ class AppTexts {
   );
 
   static TextStyle txsm = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 12,
     height: 18 / 12,
     fontWeight: FontWeight.w500,
@@ -309,7 +309,7 @@ class AppTexts {
   );
 
   static TextStyle txss = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 12,
     height: 18 / 12,
     fontWeight: FontWeight.w600,
@@ -317,7 +317,7 @@ class AppTexts {
   );
 
   static TextStyle txsb = TextStyle(
-    fontFamily: "Lato",
+    fontFamily: "Poppins",
     fontSize: 12,
     height: 18 / 12,
     fontWeight: FontWeight.bold,
