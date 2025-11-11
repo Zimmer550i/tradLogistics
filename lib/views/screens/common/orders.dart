@@ -96,7 +96,12 @@ class _OrdersState extends State<Orders> {
                 children: [
                   const SizedBox(),
                   for (int i = 0; i < 10; i++)
-                    OrderWidget(isCompleted: index == 1),
+                    OrderWidget(
+                      primaryButtonText: "Start Tracking",
+                      primaryButtonIcon: "tracking",
+                      secondaryButtonText: "Cancel Delivery",
+                      secondaryButtonIcon: "close",
+                    ),
                   const SizedBox(height: 16),
                 ],
               ),

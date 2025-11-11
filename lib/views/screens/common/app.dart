@@ -4,6 +4,7 @@ import 'package:template/views/screens/common/account.dart';
 import 'package:template/views/screens/common/inbox.dart';
 import 'package:template/views/screens/common/orders.dart';
 import 'package:template/views/screens/driver/earnings/driver_earnings.dart';
+import 'package:template/views/screens/driver/home/driver_home.dart';
 
 class App extends StatefulWidget {
   final bool isUser;
@@ -17,7 +18,7 @@ class _AppState extends State<App> {
   int index = 0;
   List<Widget> userPages = [FlutterLogo(), Orders(), Inbox(), Account()];
   List<Widget> driverPages = [
-    FlutterLogo(),
+    DriverHome(),
     Orders(canSeePast: false),
     DriverEarnings(),
     Inbox(),
