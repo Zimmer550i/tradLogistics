@@ -18,6 +18,7 @@ class CustomTextField extends StatefulWidget {
   final bool isPassword;
   final int lines;
   final void Function()? onTap;
+  final void Function(String)? onChanged;
   const CustomTextField({
     super.key,
     this.title,
@@ -31,6 +32,7 @@ class CustomTextField extends StatefulWidget {
     this.textInputType,
     this.controller,
     this.onTap,
+    this.onChanged,
     this.errorText,
     this.height = 46,
     this.width,
@@ -130,7 +132,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
                     child: SvgPicture.asset(
                       widget.leading!,
                       colorFilter: ColorFilter.mode(
-                        isFocused ? iconColorFocused : iconColorUnfocused,
+                        // isFocused ? iconColorFocused : iconColorUnfocused,
+                        iconColorFocused,
                         BlendMode.srcIn,
                       ),
                     ),
@@ -144,6 +147,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                     keyboardType: widget.textInputType,
                     obscureText: isObscured,
                     enabled: !widget.isDisabled && widget.onTap == null,
+                    onChanged: widget.onChanged,
                     onTapOutside: (event) {
                       setState(() {
                         isFocused = false;

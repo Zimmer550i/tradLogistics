@@ -3,6 +3,7 @@ import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/views/base/home_bar.dart';
 import 'package:template/views/base/order_widget.dart';
+import 'package:template/views/screens/user/modals/cancel_delivery.dart';
 
 class Orders extends StatefulWidget {
   final bool canSeePast;
@@ -101,6 +102,7 @@ class _OrdersState extends State<Orders> {
                       primaryButtonIcon: "tracking",
                       secondaryButtonText: "Cancel Delivery",
                       secondaryButtonIcon: "close",
+                      secondaryAction: () => cancelDelivery(context),
                     ),
                   const SizedBox(height: 16),
                 ],

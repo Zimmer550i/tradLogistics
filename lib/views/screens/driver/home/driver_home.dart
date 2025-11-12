@@ -103,17 +103,21 @@ class _DriverHomeState extends State<DriverHome> {
               ),
             ),
           if (isReady && !showingBottomCard && !runningTrip)
-            Center(
-              child: GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onTap: () {
-                  setState(() {
-                    showingBottomCard = true;
-                  });
-                },
-                child: Lottie.asset("assets/lottie/hourglass.json"),
+            // IgnorePointer(
+            //   ignoring: true,
+            //   child:
+               Center(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () {
+                    setState(() {
+                      showingBottomCard = true;
+                    });
+                  },
+                  child: Lottie.asset("assets/lottie/ripple.json"),
+                ),
               ),
-            ),
+            // ),
 
           if (isReady && (showingBottomCard || runningTrip))
             AnimatedPositioned(

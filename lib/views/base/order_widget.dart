@@ -181,6 +181,7 @@ class _OrderWidgetState extends State<OrderWidget> {
                                     primaryLoading = false;
                                   });
                                 },
+                                iconColor: AppColors.white,
                                 text: widget.primaryButtonText!,
                                 leading: widget.primaryButtonIcon == null
                                     ? null

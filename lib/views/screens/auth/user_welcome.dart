@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/views/base/custom_button.dart';
-import 'package:template/views/screens/common/app.dart';
+import 'package:template/views/app.dart';
 
 class UserWelcome extends StatelessWidget {
   const UserWelcome({super.key});
