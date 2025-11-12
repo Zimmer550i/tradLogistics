@@ -8,6 +8,7 @@ import 'package:template/views/base/custom_button.dart';
 import 'package:template/views/base/custom_drop_down.dart';
 import 'package:template/views/base/custom_text_field.dart';
 import 'package:template/views/screens/user/home/user_schedule_delivery.dart';
+import 'package:template/views/screens/user/map/user_map.dart';
 
 class UserPlanDelivery extends StatefulWidget {
   final int? autoFocusField;
@@ -441,7 +442,12 @@ class _UserPlanDeliveryState extends State<UserPlanDelivery> {
                     ),
 
                     const SizedBox(height: 32),
-                    CustomButton(onTap: () {}, text: "Continue"),
+                    CustomButton(
+                      onTap: () {
+                        Get.to(() => UserMap());
+                      },
+                      text: "Continue",
+                    ),
                     const SizedBox(height: 16),
                   ],
                 );
