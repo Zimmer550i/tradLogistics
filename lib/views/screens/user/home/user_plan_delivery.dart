@@ -174,28 +174,6 @@ class _UserPlanDeliveryState extends State<UserPlanDelivery> {
                 ),
               ),
               const SizedBox(height: 16),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text("Choose Vehicle Type", style: AppTexts.tlgr),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                spacing: 12,
-                children: [
-                  vehicleType("bike", "Bike", 0),
-                  vehicleType("car", "Car", 1),
-                  vehicleType("van", "Van", 2),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                spacing: 12,
-                children: [
-                  vehicleType("wrecker", "Wrecker", 3),
-                  vehicleType("truck", "Removal Truck", 4),
-                ],
-              ),
-              const SizedBox(height: 16),
               CustomTextField(hintText: "Weight (Optional)"),
               const SizedBox(height: 16),
               CustomTextField(hintText: "Special Instructions"),
