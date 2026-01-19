@@ -5,7 +5,8 @@ import 'package:template/utils/message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:template/views/app.dart';
+// import 'package:template/views/app.dart';
+import 'package:template/views/screens/user/gas/order_gas.dart';
 import 'controllers/localization_controller.dart';
 import 'controllers/theme_controller.dart';
 import 'helpers/di.dart' as di;
@@ -49,7 +50,7 @@ class MyApp extends StatelessWidget {
               transitionDuration: const Duration(milliseconds: 500),
               getPages: AppRoutes.pages,
               // initialRoute: AppRoutes.splash,
-              home: App(isUser: true),
+              home: OrderGas(),
             );
           },
         );

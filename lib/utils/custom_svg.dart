@@ -21,16 +21,19 @@ class CustomSvg extends StatelessWidget {
   Widget build(BuildContext context) {
     return asset.contains(".svg")
         ? SvgPicture.asset(
-          asset,
-          height: size ?? height,
-          width: size ?? width,
-          colorFilter:
-              color != null ? ColorFilter.mode(color!, BlendMode.srcIn) : null,
-        )
-        : CachedNetworkImage(
-          imageUrl: asset,
-          height: size ?? height,
-          width: size ?? width,
-        );
+            asset,
+            height: size ?? height,
+            width: size ?? width,
+            colorFilter: color != null
+                ? ColorFilter.mode(color!, BlendMode.srcIn)
+                : null,
+          )
+        : asset.contains("http")
+        ? CachedNetworkImage(
+            imageUrl: asset,
+            height: size ?? height,
+            width: size ?? width,
+          )
+        : Image.asset(asset, height: size ?? height, width: size ?? width);
   }
 }
