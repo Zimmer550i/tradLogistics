@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
+import 'package:template/controllers/auth_controller.dart';
 import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/utils/custom_svg.dart';
@@ -19,27 +22,37 @@ class Verification extends StatefulWidget {
 
 class _VerificationState extends State<Verification> {
   final controller = TextEditingController();
+
+  final AuthController _authController = Get.find<AuthController>();
+
+  Timer? _timer;
   int time = 0;
 
-  void resendOtp() {}
 
-  void startTimer() {
-    setState(() {
-      time = 10;
-    });
-    updateTimer();
-  }
+ void startTimer() {
+  setState(() {
+    time = 10;
+  });
 
-  void updateTimer() {
+  _timer?.cancel(); // cancel previous timer if any
+
+  _timer = Timer.periodic(Duration(seconds: 1), (timer) {
     if (time > 0) {
-      Future.delayed(Duration(seconds: 1), () {
-        setState(() {
-          time--;
-        });
-        updateTimer();
+      setState(() {
+        time--;
       });
+    } else {
+      _timer?.cancel(); // stop the timer when it reaches 0
     }
-  }
+  });
+}
+
+@override
+void dispose() {
+  controller.dispose(); // always dispose controllers
+  _timer?.cancel(); // cancel the timer
+  super.dispose();
+}
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +74,9 @@ class _VerificationState extends State<Verification> {
                 autofocus: true,
                 controller: controller,
                 onChanged: (value) {
-                  setState(() {});
+                  setState(() {
+                   
+                  });
                 },
                 mainAxisAlignment: MainAxisAlignment.start,
                 defaultPinTheme: PinTheme(
@@ -95,8 +110,6 @@ class _VerificationState extends State<Verification> {
               GestureDetector(
                 onTap: () {
                   if (time > 0) return;
-
-                  resendOtp();
                   startTimer();
                 },
                 child: Container(
@@ -143,11 +156,8 @@ class _VerificationState extends State<Verification> {
               Spacer(),
               CustomButton(
                 onTap: () {
-                  if (widget.isDriver) {
-                    Get.to(() => DriverPersonalInformation());
-                  } else {
-                    Get.to(() => UserPersonalInformation());
-                  }
+                  if(controller.text.length < 4) return;
+                  _authController.verifiyation(controller.text, widget.number);
                 },
                 text: "Next",
                 padding: 0,

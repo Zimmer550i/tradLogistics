@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:template/controllers/loading_controller.dart';
 import '../controllers/localization_controller.dart';
 import '../controllers/theme_controller.dart';
 import '../models/language_model.dart';
@@ -15,6 +16,7 @@ Future<Map<String, Map<String, String>>> init() async {
   Get.lazyPut(() => sharedPreferences);
 
   // Repository
+    Get.put(LoadingController(), permanent: true);
 
   Get.lazyPut(() => ThemeController(sharedPreferences: Get.find()));
   Get.lazyPut(() => LocalizationController(sharedPreferences: Get.find()));

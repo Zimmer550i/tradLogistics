@@ -19,6 +19,7 @@ class CustomTextField extends StatefulWidget {
   final int lines;
   final void Function()? onTap;
   final void Function(String)? onChanged;
+  final  Function(String)? validator;
   const CustomTextField({
     super.key,
     this.title,
@@ -36,6 +37,7 @@ class CustomTextField extends StatefulWidget {
     this.errorText,
     this.height = 46,
     this.width,
+      this.validator,
   });
 
   @override
@@ -139,7 +141,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                     ),
                   ),
                 Expanded(
-                  child: TextField(
+                  child: TextFormField(
                     focusNode: focusNode,
                     controller: widget.controller,
                     maxLines: widget.lines,
@@ -148,6 +150,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                     obscureText: isObscured,
                     enabled: !widget.isDisabled && widget.onTap == null,
                     onChanged: widget.onChanged,
+                    
                     onTapOutside: (event) {
                       setState(() {
                         isFocused = false;
@@ -158,6 +161,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       isDense: true,
+                      
                       contentPadding: EdgeInsets.zero,
                       hintText: widget.hintText,
                       hintStyle: AppTexts.tsmr.copyWith(color: hintTextColor),
