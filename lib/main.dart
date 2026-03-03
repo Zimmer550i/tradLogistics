@@ -1,3 +1,5 @@
+import 'package:template/config/environment.dart';
+import 'package:template/storage/storage_service.dart';
 import 'package:template/themes/light_theme.dart';
 import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_constants.dart';
@@ -6,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:template/views/app.dart';
+import 'package:template/views/base/loading_overlay.dart';
 import 'controllers/localization_controller.dart';
 import 'controllers/theme_controller.dart';
 import 'helpers/di.dart' as di;
@@ -14,6 +17,10 @@ import 'helpers/route.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Map<String, Map<String, String>> languages = await di.init();
+    EnvironmentConfig.init(Environment.dev);
+
+  // Initialize storage
+  await StorageService.init();
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(
       statusBarColor: AppColors.blue,
@@ -48,8 +55,11 @@ class MyApp extends StatelessWidget {
               ),
               transitionDuration: const Duration(milliseconds: 500),
               getPages: AppRoutes.pages,
-              // initialRoute: AppRoutes.splash,
-              home: App(isUser: false,),
+              initialRoute: AppRoutes.splash,
+          //    home: App(isUser: false,),
+           builder: (context, child) => LoadingOverlay(
+            child: child ?? const SizedBox.shrink(),
+          ),
             );
           },
         );

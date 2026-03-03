@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/views/base/custom_button.dart';
 import 'package:template/views/screens/auth/login.dart';
+import 'package:template/views/screens/auth/verification.dart';
 
 class GetStarted extends StatelessWidget {
   const GetStarted({super.key});
@@ -33,7 +35,46 @@ class GetStarted extends StatelessWidget {
               Spacer(),
               CustomButton(
                 onTap: () {
-                  Get.to(() => Login());
+                       showModalBottomSheet(
+                    context: context,
+                    backgroundColor: AppColors.neutral[50],
+                    builder: (context) {
+                      return SafeArea(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const SizedBox(height: 36),
+                              CustomButton(
+                                onTap: () {
+                                  Get.back();
+                                  Get.to(
+                                    () => Login(isUser: true,),
+                                  );
+                                },
+                                text: "Continue as User",
+                              ),
+                              const SizedBox(height: 16),
+                              CustomButton(
+                                onTap: () {
+                                  Get.back();
+                                  Get.to(
+                                    () =>Login(isUser: false,),
+                                  );
+                                },
+                                text: "Continue as Driver",
+                                isSecondary: true,
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+               
+               
                 },
                 text: "Get Started",
                 trailing: "assets/icons/arrow_forward.svg",

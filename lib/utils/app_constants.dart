@@ -3,8 +3,12 @@
 import '../models/language_model.dart';
 
 class AppConstants{
-
+AppConstants._();
   static String APP_NAME="project_template";
+    static const int connectTimeout = 30; // seconds
+  static const int receiveTimeout = 30; // seconds
+  static const int paginationLimit = 20;
+ 
 
 
   // share preference Key

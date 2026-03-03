@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:template/storage/storage_service.dart';
 import 'package:template/utils/custom_svg.dart';
+import 'package:template/views/app.dart';
 import 'package:template/views/screens/auth/get_started.dart';
 
 class Splash extends StatefulWidget {
@@ -15,12 +17,16 @@ class _SplashState extends State<Splash> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => Future.delayed(
-        Duration(seconds: 1),
-        () => Get.to(() => GetStarted()),
-      ),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(const Duration(seconds: 1));
+      final storage = StorageService();
+      if (storage.isLoggedIn) {
+        final isUser = storage.getRole() == 'customer';
+        Get.offAll(() => App(isUser: isUser));
+      } else {
+        Get.offAll(() => const GetStarted());
+      }
+    });
   }
 
   @override
