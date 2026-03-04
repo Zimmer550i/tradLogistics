@@ -162,20 +162,7 @@ class _DriverPersonalInformationState extends State<DriverPersonalInformation> {
           padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
           child: Row(
             children: [
-              GestureDetector(
-                onTap: () => Get.back(),
-                child: Container(
-                  height: 48,
-                  width: 48,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.neutral.shade200,
-                  ),
-                  child: Center(
-                    child: CustomSvg(asset: "assets/icons/back.svg", size: 32),
-                  ),
-                ),
-              ),
+              SizedBox(),
               Spacer(),
               CustomButton(
                 onTap: () {

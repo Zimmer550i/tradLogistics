@@ -40,7 +40,9 @@ class AuthController extends BaseController {
         }
       } else {
         // Driver — step by step check
-        if (profile['first_name'] == null) {
+        if (data['data']['d_type'] == "gas") {
+          Get.offAll(() => App(isUser: false));
+        } else if (profile['first_name'] == null) {
           Get.offAll(() => DriverPersonalInformation());
         } else if (profile['vehicle'] == null) {
           Get.offAll(() => DriverVehicleInformation());
@@ -90,17 +92,19 @@ class AuthController extends BaseController {
             Get.off(() => UserPersonalInformation());
           }
         } else {
-          if (data['data']['first_name'] == null) {
-          Get.offAll(() => DriverPersonalInformation());
-        } else if (data['data']['vehicle'] == null) {
-          Get.offAll(() => DriverVehicleInformation());
-        } else if (data['data']['document'] == null) {
-          Get.offAll(() => DriverDocumentUpload());
-        } else if (data['data']['is_verified'] == false) {
-          Get.offAll(() => DriverDocumentReview());
-        } else {
-          Get.offAll(() => App(isUser: false));
-        }
+          if (data['data']['d_type'] == "gas") {
+            Get.offAll(() => App(isUser: false));
+          } else if (data['data']['first_name'] == null) {
+            Get.offAll(() => DriverPersonalInformation());
+          } else if (data['data']['vehicle'] == null) {
+            Get.offAll(() => DriverVehicleInformation());
+          } else if (data['data']['document'] == null) {
+            Get.offAll(() => DriverDocumentUpload());
+          } else if (data['data']['is_verified'] == false) {
+            Get.offAll(() => DriverDocumentReview());
+          } else {
+            Get.offAll(() => App(isUser: false));
+          }
         }
       }
     }, showOverlay: true);
@@ -144,9 +148,9 @@ class AuthController extends BaseController {
           'location_long': long,
         },
         files: {
-         if (proofOfAddress != null) 'proof_of_address': proofOfAddress,
-         if (policeRecord != null) 'police_record': policeRecord,
-        if (profilePicture != null) 'profile_image': profilePicture,
+          if (proofOfAddress != null) 'proof_of_address': proofOfAddress,
+          if (policeRecord != null) 'police_record': policeRecord,
+          if (profilePicture != null) 'profile_image': profilePicture,
         },
       );
       if (data['status'] == 'success') {
@@ -154,11 +158,6 @@ class AuthController extends BaseController {
       }
     }, showOverlay: true);
   }
-
-
-
-
-
 
   // Driver — upload documents (multipart, files only)
   Future<void> uploadDocuments({
@@ -206,9 +205,7 @@ class AuthController extends BaseController {
           'color': color,
           'registration_number': registrationNumber,
         },
-        files: {
-          if (image != null) 'image': image,
-        },
+        files: {if (image != null) 'image': image},
       );
       if (data['status'] == 'success') {
         Get.off(() => DriverDocumentUpload());
