@@ -12,6 +12,10 @@ class ApiEndpoints {
   // Users
   static const String users = '/users';
 
+  // Driver
+  static const String driverVehicles = '/driver/vehicles/';
+  static const String driverDocuments = '/driver/documents/';
+
   // Products
   static const String products = '/products/';
   static String userById(int id) => '/users/$id';

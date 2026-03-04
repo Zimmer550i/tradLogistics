@@ -16,11 +16,11 @@ import 'helpers/route.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Map<String, Map<String, String>> languages = await di.init();
-    EnvironmentConfig.init(Environment.dev);
+  EnvironmentConfig.init(Environment.dev);
 
-  // Initialize storage
+  // StorageService আগে init করতে হবে — controllers এর উপর depend করে
   await StorageService.init();
+  Map<String, Map<String, String>> languages = await di.init();
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(
       statusBarColor: AppColors.blue,

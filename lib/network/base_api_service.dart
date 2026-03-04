@@ -9,6 +9,9 @@ import 'package:template/network/connectivity_service.dart';
 import 'package:template/storage/storage_service.dart';
 import 'package:template/utils/app_constants.dart';
 import 'package:template/utils/logger.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
+import 'package:template/views/app.dart';
 
 
 class BaseApiService {
@@ -24,6 +27,16 @@ class BaseApiService {
     final headers = <String, String>{
       'Content-Type': 'application/json',
     };
+    final token = _storage.getToken();
+    if (token != null && token.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+    return headers;
+  }
+
+  // Multipart এ Content-Type দেওয়া যাবে না — http নিজেই set করে
+  Map<String, String> get _authHeader {
+    final headers = <String, String>{};
     final token = _storage.getToken();
     if (token != null && token.isNotEmpty) {
       headers['Authorization'] = 'Bearer $token';
@@ -59,6 +72,7 @@ class BaseApiService {
     dynamic body,
     Map<String, String>? extraHeaders,
   }) async {
+    print("POST Request to ${_buildUri(endpoint)} with body: ${jsonEncode(body)} and headers: ${{..._headers, ...?extraHeaders}}");
     return _request(
       () => _client.post(
         _buildUri(endpoint),
@@ -108,6 +122,70 @@ class BaseApiService {
     );
   }
 
+
+Future<dynamic> multipart(
+  String method,
+  String endpoint, {
+  Map<String, String> fields = const {},
+  Map<String, File> files = const {},
+}) async {
+  if (!await _connectivity.hasConnection) {
+    throw ApiException.noInternet();
+  }
+  try {
+    final request = http.MultipartRequest(method, _buildUri(endpoint));
+    // Add headers
+    request.headers.addAll(_authHeader);
+
+    // Add normal fields
+    request.fields.addAll(fields);
+
+    // Add files (image, PDF, etc.)
+    for (final entry in files.entries) {
+      final file = entry.value;
+
+      if (!file.existsSync()) {
+        throw ApiException(message: "${entry.key} file not found");
+      }
+
+      // Detect mime type dynamically
+      final mimeType = lookupMimeType(file.path)?.split('/');
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          entry.key,
+          file.path,
+          contentType: mimeType != null
+              ? MediaType(mimeType[0], mimeType[1])
+              : MediaType('application', 'octet-stream'), // fallback
+        ),
+      );
+    }
+
+  
+    // Send request
+    final streamed = await request.send().timeout(
+      Duration(seconds: AppConstants.connectTimeout),
+    );
+    final response = await http.Response.fromStream(streamed); 
+    // Log network
+    AppLogger.network(
+      '=======> MULTIPART $method ${request.url} → ${response.statusCode}\n${response.body}',
+    );
+
+    return _processResponse(response);
+  } on TimeoutException {
+    throw ApiException.timeout();
+  } on SocketException {
+    throw ApiException(message: 'Could not connect to server');
+  } on ApiException {
+    rethrow;
+  } catch (e) {
+    AppLogger.error('Multipart error', error: e);
+    throw ApiException.unknown(e);
+  }
+}
+
+
   Future<dynamic> _request(
     Future<http.Response> Function() request,
   ) async {
@@ -120,7 +198,7 @@ class BaseApiService {
         Duration(seconds: AppConstants.connectTimeout),
       );
 
-      AppLogger.network('=======> Method: ${response.request?.method} url : ${response.request?.url}  -----> status Code ${response.statusCode} \n ========> ${response.body} ');
+      AppLogger.network('=======>  token: ${_storage.getToken()}   Method: ${response.request?.method} url : ${response.request?.url}  -----> status Code ${response.statusCode} \n ========> body ${response.body} ');
 
       return _processResponse(response);
     } on TimeoutException {

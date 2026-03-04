@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:template/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -26,109 +27,113 @@ class ProfilePicture extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: () async {
-        if (!isEditable) {
-          return;
-        }
-
-        File? image = await customImagePicker();
-
-        if (image != null && imagePickerCallback != null) {
-          imagePickerCallback!(image);
-        }
-      },
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            padding: EdgeInsets.all(2),
-            decoration: BoxDecoration(
-              color: AppColors.neutral.shade100,
-              shape: BoxShape.circle,
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(100),
-              child: imageFile != null
-                  ? Image.file(
-                      imageFile!,
-                      width: size,
-                      height: size,
-                      fit: BoxFit.cover,
-                    )
-                  : image != null
-                  ? CachedNetworkImage(
-                      imageUrl: image!,
-                      progressIndicatorBuilder: (context, url, progress) {
-                        return SizedBox(
-                          width: size,
-                          height: size,
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              value: progress.progress,
-                              strokeWidth: 2,
-                              color: AppColors.blue,
+    return SafeArea(
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () async {
+          if (!isEditable) {
+            return;
+          }
+      
+        //  File? image = await customImagePicker();
+            XFile? image = await ImagePicker().pickImage(
+    source: ImageSource.gallery,
+  );
+          if (image != null && imagePickerCallback != null) {
+            imagePickerCallback!(File(image.path));
+          }
+        },
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Container(
+              padding: EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: AppColors.neutral.shade100,
+                shape: BoxShape.circle,
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(100),
+                child: imageFile != null
+                    ? Image.file(
+                        imageFile!,
+                        width: size,
+                        height: size,
+                        fit: BoxFit.cover,
+                      )
+                    : image != null
+                    ? CachedNetworkImage(
+                        imageUrl: image!,
+                        progressIndicatorBuilder: (context, url, progress) {
+                          return SizedBox(
+                            width: size,
+                            height: size,
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                value: progress.progress,
+                                strokeWidth: 2,
+                                color: AppColors.blue,
+                              ),
                             ),
+                          );
+                        },
+                        errorWidget: (context, url, error) {
+                          return Container(
+                            width: size,
+                            height: size,
+                            color: AppColors.blue,
+                            child: Icon(Icons.error, color: Colors.blue),
+                          );
+                        },
+                        width: size,
+                        height: size,
+                        fit: BoxFit.cover,
+                      )
+                    : Container(
+                        width: size,
+                        height: size,
+                        padding: EdgeInsets.all(size * 0.17),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(width: 3, color: AppColors.blue),
+                        ),
+                        child: SvgPicture.asset(
+                          "assets/icons/user.svg",
+                          colorFilter: ColorFilter.mode(
+                            AppColors.blue,
+                            BlendMode.srcIn,
                           ),
-                        );
-                      },
-                      errorWidget: (context, url, error) {
-                        return Container(
-                          width: size,
-                          height: size,
-                          color: AppColors.blue,
-                          child: Icon(Icons.error, color: Colors.blue),
-                        );
-                      },
-                      width: size,
-                      height: size,
-                      fit: BoxFit.cover,
-                    )
-                  : Container(
-                      width: size,
-                      height: size,
-                      padding: EdgeInsets.all(size * 0.17),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(width: 3, color: AppColors.blue),
-                      ),
-                      child: SvgPicture.asset(
-                        "assets/icons/user.svg",
-                        colorFilter: ColorFilter.mode(
-                          AppColors.blue,
-                          BlendMode.srcIn,
                         ),
                       ),
-                    ),
+              ),
             ),
-          ),
-          if (isEditable)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: -12,
-              child: Center(
-                child: Container(
-                  height: 32,
-                  width: 32,
-                  decoration: BoxDecoration(
-                    color: AppColors.blue,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.white),
-                  ),
-
-                  child: Center(
-                    child: CustomSvg(
-                      asset: "assets/icons/edit.svg",
-                      size: 16,
-                      color: AppColors.white,
+            if (isEditable)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: -12,
+                child: Center(
+                  child: Container(
+                    height: 32,
+                    width: 32,
+                    decoration: BoxDecoration(
+                      color: AppColors.blue,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.white),
+                    ),
+      
+                    child: Center(
+                      child: CustomSvg(
+                        asset: "assets/icons/edit.svg",
+                        size: 16,
+                        color: AppColors.white,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
