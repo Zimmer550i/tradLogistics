@@ -11,7 +11,7 @@ class Login extends StatelessWidget {
     Login({super.key,required this.isUser});
    final bool isUser; 
 
-   final AuthController _authController = Get.put(AuthController());
+   final AuthController _authController = Get.find<AuthController>();
     TextEditingController _phoneController = TextEditingController();
 
     GlobalKey<FormState> _formKey = GlobalKey<FormState>();

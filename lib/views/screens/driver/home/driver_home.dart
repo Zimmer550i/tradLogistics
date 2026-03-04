@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -17,7 +19,9 @@ class DriverHome extends StatefulWidget {
 
 class _DriverHomeState extends State<DriverHome> {
   GoogleMapController? _mapController;
+  StreamSubscription<Position>? _positionSub;
   LatLng? _currentPosition;
+  bool _locationPermissionGranted = false;
   int state = 0;
   bool isReady = false;
   bool showingBottomCard = false;
@@ -26,26 +30,74 @@ class _DriverHomeState extends State<DriverHome> {
   @override
   void initState() {
     super.initState();
-    _getCurrentLocation();
-    Geolocator.getPositionStream().listen((Position position) {
-      debugPrint('${position.latitude}, ${position.longitude}');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initLocation();
     });
   }
 
   @override
+  void dispose() {
+    _positionSub?.cancel();
+    _mapController?.dispose();
+    super.dispose();
+  }
+
+  Future<void> _initLocation() async {
+    final hasPermission = await _checkPermission();
+    if (!hasPermission || !mounted) return;
+
+    setState(() => _locationPermissionGranted = true);
+
+    await _getCurrentLocation();
+
+    _positionSub = Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.best,
+        distanceFilter: 5,
+      ),
+    ).listen((position) {
+      if (!mounted) return;
+      setState(() {
+        _currentPosition = LatLng(position.latitude, position.longitude);
+      });
+      _mapController?.animateCamera(
+        CameraUpdate.newLatLng(_currentPosition!),
+      );
+    });
+  }
+
+  Future<bool> _checkPermission() async {
+    if (!await Geolocator.isLocationServiceEnabled()) return false;
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) return false;
+    }
+    return permission != LocationPermission.deniedForever;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_currentPosition == null) {
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.blue),
+        ),
+      );
+    }
+
     return SafeArea(
       child: Stack(
         children: [
           GoogleMap(
-            onMapCreated: (val) => _mapController = val,
-            myLocationEnabled: true,
-            myLocationButtonEnabled: false,
-            initialCameraPosition: CameraPosition(
-              target: LatLng(23.00, 90.000),
-              zoom: 10,
-            ),
-          ),
+                  onMapCreated: (val) => _mapController = val,
+                  myLocationEnabled: _locationPermissionGranted,
+                  myLocationButtonEnabled: false,
+                  initialCameraPosition: CameraPosition(
+                    target: _currentPosition!,
+                    zoom: 17,
+                  ),
+                ),
           if (isReady && showingBottomCard)
             Positioned.fill(
               child: Container(color: Colors.black.withValues(alpha: 0.22)),
@@ -196,41 +248,24 @@ class _DriverHomeState extends State<DriverHome> {
   }
 
   Future<void> _getCurrentLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    // Check if location services are enabled
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
-
-    // Check for permission
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-        'Location permissions are permanently denied, we cannot request permissions.',
+    try {
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.best,
+        ),
       );
-    }
 
-    // Get the location
-    final position = await Geolocator.getCurrentPosition(
-      locationSettings: LocationSettings(accuracy: LocationAccuracy.best),
-    );
+      if (!mounted) return;
 
-    setState(() {
-      _currentPosition = LatLng(position.latitude, position.longitude);
+      setState(() {
+        _currentPosition = LatLng(position.latitude, position.longitude);
+      });
       _mapController?.animateCamera(
-        CameraUpdate.newLatLng(_currentPosition!),
-        duration: Duration(seconds: 5),
+        CameraUpdate.newLatLngZoom(_currentPosition!, 15),
       );
-    });
+    } catch (e) {
+      print('Error getting location: $e');
+    }
   }
+
 }

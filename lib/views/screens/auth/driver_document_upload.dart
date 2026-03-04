@@ -1,15 +1,13 @@
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:template/controllers/auth_controller.dart';
 import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/utils/custom_svg.dart';
 import 'package:template/views/base/custom_button.dart';
-import 'package:template/views/base/custom_text_field.dart';
 import 'package:template/views/base/image_picker_widget.dart';
-import 'package:template/views/screens/auth/driver_document_review.dart';
 
 class DriverDocumentUpload extends StatefulWidget {
   const DriverDocumentUpload({super.key});
@@ -19,7 +17,18 @@ class DriverDocumentUpload extends StatefulWidget {
 }
 
 class _DriverDocumentUploadState extends State<DriverDocumentUpload> {
-  File? regDoc;
+  final _authController = Get.find<AuthController>();
+
+  File? licenseFront;
+  File? licenseBack;
+  File? vehicleRegistration;
+  File? nationalIdFront;
+  File? nationalIdBack;
+
+  bool get _canSubmit =>
+      licenseFront != null &&
+      licenseBack != null &&
+      vehicleRegistration != null;
 
   @override
   Widget build(BuildContext context) {
@@ -36,50 +45,93 @@ class _DriverDocumentUploadState extends State<DriverDocumentUpload> {
               Padding(
                 padding: EdgeInsets.only(bottom: 4),
                 child: Text(
-                  "Driving License",
+                  "Driving License (Front)",
                   style: AppTexts.txsm.copyWith(
                     color: AppColors.neutral.shade600,
                   ),
                 ),
               ),
-              ImagePickerWidget(),
-              const SizedBox(height: 12),
-              ImagePickerWidget(),
+              ImagePickerWidget(
+                imageFile: licenseFront,
+                onImagePicked: (file) {
+                  setState(() {
+                    licenseFront = file;
+                  });
+                },
+              ),
               const SizedBox(height: 12),
               Padding(
                 padding: EdgeInsets.only(bottom: 4),
                 child: Text(
-                  "National ID (Optional)",
+                  "Driving License (Back)",
                   style: AppTexts.txsm.copyWith(
                     color: AppColors.neutral.shade600,
                   ),
                 ),
               ),
-              ImagePickerWidget(),
-              const SizedBox(height: 12),
-              ImagePickerWidget(),
-              const SizedBox(height: 12),
-              CustomTextField(
-                onTap: () async {
-                  FilePickerResult? result = await FilePicker.platform
-                      .pickFiles(
-                        type: FileType.custom,
-                        allowedExtensions: ['pdf', 'jpg', 'png', 'jpeg'],
-                      );
-                  if (result != null && result.files.single.path != null) {
-                    setState(() {
-                      regDoc = File(result.files.single.path!);
-                    });
-                  }
+              ImagePickerWidget(
+                imageFile: licenseBack,
+                onImagePicked: (file) {
+                  setState(() {
+                    licenseBack = file;
+                  });
                 },
-                title: "Registration Document",
-                hintText: "Upload document",
-                controller: regDoc != null
-                    ? TextEditingController(text: regDoc!.path.split('/').last)
-                    : null,
-                trailing: "assets/icons/attach.svg",
+              ), const SizedBox(height: 12),
+              Padding(
+                padding: EdgeInsets.only(bottom: 4),
+                child: Text(
+                  "National ID - Front (Optional)",
+                  style: AppTexts.txsm.copyWith(
+                    color: AppColors.neutral.shade600,
+                  ),
+                ),
               ),
-            ],
+              ImagePickerWidget(
+                imageFile: nationalIdFront,
+                onImagePicked: (file) {
+                  setState(() {
+                    nationalIdFront = file;
+                  });
+                },
+              ),
+              const SizedBox(height: 12),
+              Padding(
+                padding: EdgeInsets.only(bottom: 4),
+                child: Text(
+                  "National ID - Back (Optional)",
+                  style: AppTexts.txsm.copyWith(
+                    color: AppColors.neutral.shade600,
+                  ),
+                ),
+              ),
+              ImagePickerWidget(
+                imageFile: nationalIdBack,
+                onImagePicked: (file) {
+                  setState(() {
+                    nationalIdBack = file;
+                  });
+                },
+              ),
+           
+              const SizedBox(height: 12),
+              Padding(
+                padding: EdgeInsets.only(bottom: 4),
+                child: Text(
+                  "Vehicle Registration",
+                  style: AppTexts.txsm.copyWith(
+                    color: AppColors.neutral.shade600,
+                  ),
+                ),
+              ),
+              ImagePickerWidget(
+                imageFile: vehicleRegistration,
+                onImagePicked: (file) {
+                  setState(() {
+                    vehicleRegistration = file;
+                  });
+                },
+              ),
+              ],
           ),
         ),
       ),
@@ -88,33 +140,25 @@ class _DriverDocumentUploadState extends State<DriverDocumentUpload> {
           padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
           child: Row(
             children: [
-              GestureDetector(
-                onTap: () {
-                  Get.back();
-                },
-                child: Container(
-                  height: 48,
-                  width: 48,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.neutral.shade200,
-                  ),
-                  child: Center(
-                    child: CustomSvg(asset: "assets/icons/back.svg", size: 32),
-                  ),
-                ),
-              ),
+             SizedBox(),
               Spacer(),
               CustomButton(
                 onTap: () {
-                  Get.to(() => DriverDocumentReview());
+                  if (!_canSubmit) return;
+                  _authController.uploadDocuments(
+                    drivingLicenseFront: licenseFront!,
+                    drivingLicenseBack: licenseBack!,
+                    vehicleRegistration: vehicleRegistration!,
+                    nationalIdFront: nationalIdFront,
+                    nationalIdBack: nationalIdBack,
+                  );
                 },
                 text: "Submit",
                 padding: 0,
-                width: 90,
+                width: 110,
                 radius: 99,
-                // isDisabled: controller.text.length < 4,
-                // isSecondary: controller.text.length < 4,
+                isDisabled: !_canSubmit,
+                isSecondary: !_canSubmit,
                 trailing: "assets/icons/arrow_forward.svg",
               ),
             ],

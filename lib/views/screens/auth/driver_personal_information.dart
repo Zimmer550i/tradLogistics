@@ -2,13 +2,13 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:template/controllers/auth_controller.dart';
 import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/utils/custom_svg.dart';
 import 'package:template/views/base/custom_button.dart';
 import 'package:template/views/base/custom_text_field.dart';
 import 'package:template/views/base/profile_picture.dart';
-import 'package:template/views/screens/auth/driver_vehicle_information.dart';
 
 class DriverPersonalInformation extends StatefulWidget {
   const DriverPersonalInformation({super.key});
@@ -19,6 +19,8 @@ class DriverPersonalInformation extends StatefulWidget {
 }
 
 class _DriverPersonalInformationState extends State<DriverPersonalInformation> {
+  final _authController = Get.find<AuthController>();
+
   final firstNameCtrl = TextEditingController();
   final lastNameCtrl = TextEditingController();
   final emailCtrl = TextEditingController();
@@ -28,6 +30,22 @@ class _DriverPersonalInformationState extends State<DriverPersonalInformation> {
   File? addressProof;
   File? policeRecord;
   File? profilePicture;
+
+  bool get _canSubmit =>
+      firstNameCtrl.text.isNotEmpty &&
+      lastNameCtrl.text.isNotEmpty &&
+      emailCtrl.text.isNotEmpty &&
+      addressCtrl.text.isNotEmpty;
+
+  @override
+  void dispose() {
+    firstNameCtrl.dispose();
+    lastNameCtrl.dispose();
+    emailCtrl.dispose();
+    phoneCtrl.dispose();
+    addressCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,30 +75,36 @@ class _DriverPersonalInformationState extends State<DriverPersonalInformation> {
                   title: "First Name",
                   hintText: "Enter your first name",
                   controller: firstNameCtrl,
+                  onChanged: (_) => setState(() {}),
                 ),
                 const SizedBox(height: 12),
                 CustomTextField(
                   title: "Last Name",
                   hintText: "Enter your last name",
                   controller: lastNameCtrl,
+                  onChanged: (_) => setState(() {}),
                 ),
                 const SizedBox(height: 12),
                 CustomTextField(
                   title: "Email",
                   hintText: "Enter your email",
                   controller: emailCtrl,
+                  textInputType: TextInputType.emailAddress,
+                  onChanged: (_) => setState(() {}),
                 ),
                 const SizedBox(height: 12),
                 CustomTextField(
                   title: "Phone Number",
                   hintText: "Enter your mobile number",
                   controller: phoneCtrl,
+                  textInputType: TextInputType.phone,
                 ),
                 const SizedBox(height: 12),
                 CustomTextField(
                   title: "Address",
                   hintText: "Enter your full address",
                   controller: addressCtrl,
+                  onChanged: (_) => setState(() {}),
                 ),
                 const SizedBox(height: 12),
                 CustomTextField(
@@ -111,7 +135,7 @@ class _DriverPersonalInformationState extends State<DriverPersonalInformation> {
                     FilePickerResult? result = await FilePicker.platform
                         .pickFiles(
                           type: FileType.custom,
-                          allowedExtensions: ['pdf', 'jpg', 'png', 'jpeg'],
+                          allowedExtensions: ['jpg', 'png', 'jpeg'],
                         );
                     if (result != null && result.files.single.path != null) {
                       setState(() {
@@ -138,33 +162,29 @@ class _DriverPersonalInformationState extends State<DriverPersonalInformation> {
           padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
           child: Row(
             children: [
-              GestureDetector(
-                onTap: () {
-                  Get.back();
-                },
-                child: Container(
-                  height: 48,
-                  width: 48,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.neutral.shade200,
-                  ),
-                  child: Center(
-                    child: CustomSvg(asset: "assets/icons/back.svg", size: 32),
-                  ),
-                ),
-              ),
+              SizedBox(),
               Spacer(),
               CustomButton(
                 onTap: () {
-                  Get.to(() => DriverVehicleInformation());
+                  if (!_canSubmit) return;
+                  _authController.updateDriverProfile(
+                    firstName: firstNameCtrl.text,
+                    lastName: lastNameCtrl.text,
+                    email: emailCtrl.text,
+                    address: addressCtrl.text,
+                    lat: '',
+                    long: '',
+                    proofOfAddress: addressProof,
+                    policeRecord: policeRecord,
+                    profilePicture: profilePicture,
+                  );
                 },
                 text: "Next",
                 padding: 0,
                 width: 90,
                 radius: 99,
-                // isDisabled: controller.text.length < 4,
-                // isSecondary: controller.text.length < 4,
+                isDisabled: !_canSubmit,
+                isSecondary: !_canSubmit,
                 trailing: "assets/icons/arrow_forward.svg",
               ),
             ],

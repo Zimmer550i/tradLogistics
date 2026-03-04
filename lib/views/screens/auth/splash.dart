@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:template/controllers/auth_controller.dart';
 import 'package:template/storage/storage_service.dart';
 import 'package:template/utils/custom_svg.dart';
-import 'package:template/views/app.dart';
 import 'package:template/views/screens/auth/get_started.dart';
 
 class Splash extends StatefulWidget {
@@ -20,9 +20,11 @@ class _SplashState extends State<Splash> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.delayed(const Duration(seconds: 1));
       final storage = StorageService();
+
       if (storage.isLoggedIn) {
-        final isUser = storage.getRole() == 'customer';
-        Get.offAll(() => App(isUser: isUser));
+        // Token আছে — profile API call করে correct step এ navigate করবে
+        final authController = Get.find<AuthController>();
+        await authController.checkAuthAndNavigate();
       } else {
         Get.offAll(() => const GetStarted());
       }
