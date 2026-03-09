@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:template/controllers/auth_controller.dart';
 import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
-import 'package:template/utils/custom_svg.dart';
 import 'package:template/views/base/custom_button.dart';
 import 'package:template/views/base/custom_drop_down.dart';
 import 'package:template/views/base/custom_text_field.dart';

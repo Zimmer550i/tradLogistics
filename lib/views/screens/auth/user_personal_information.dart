@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:template/controllers/auth_controller.dart';
-import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
-import 'package:template/utils/custom_svg.dart';
 import 'package:template/views/base/custom_button.dart';
 import 'package:template/views/base/custom_text_field.dart';
-import 'package:template/views/screens/auth/user_welcome.dart';
 
 class UserPersonalInformation extends StatefulWidget {
-  UserPersonalInformation({super.key});
+  const UserPersonalInformation({super.key});
 
   @override
   State<UserPersonalInformation> createState() =>
@@ -92,7 +89,9 @@ class _UserPersonalInformationState extends State<UserPersonalInformation> {
                 onTap: () {
                 if (firstNameController.text.isEmpty ||
                     lastNameController.text.isEmpty ||
-                    emailController.text.isEmpty) return;
+                    emailController.text.isEmpty) {
+                  return;
+                }
                   Get.find<AuthController>().updateUserProfile({
                     "first_name": firstNameController.text,
                     "last_name": lastNameController.text,

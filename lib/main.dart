@@ -7,7 +7,6 @@ import 'package:template/utils/message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:template/views/app.dart';
 import 'package:template/views/base/loading_overlay.dart';
 import 'controllers/localization_controller.dart';
 import 'controllers/theme_controller.dart';

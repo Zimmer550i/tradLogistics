@@ -5,7 +5,6 @@ import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/views/base/custom_button.dart';
 import 'package:template/views/screens/auth/login.dart';
-import 'package:template/views/screens/auth/verification.dart';
 
 class GetStarted extends StatelessWidget {
   const GetStarted({super.key});

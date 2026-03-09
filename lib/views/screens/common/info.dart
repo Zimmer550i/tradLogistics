@@ -1,19 +1,22 @@
 // import 'package:template/controllers/user_controller.dart';
+import 'package:get/get.dart';
+import 'package:template/controllers/user_profile_controller.dart';
 import 'package:template/views/base/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:html_unescape/html_unescape.dart';
 import 'package:template/views/base/custom_button.dart';
+import 'package:template/views/base/custom_loading.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Info extends StatefulWidget {
   final String title;
-  final String data;
+  final String endpoint;
   final void Function()? confirmation;
   const Info({
     super.key,
     required this.title,
-    required this.data,
+    required this.endpoint,
     this.confirmation,
   });
 
@@ -22,17 +25,15 @@ class Info extends StatefulWidget {
 }
 
 class _InfoState extends State<Info> {
-  // final user = Get.find<UserController>();
+  final user = Get.find<UserProfileController>();
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   user.getSettingsInfo(widget.data).then((val) {
-  //     if (val != "success") {
-  //       customSnackbar("error_occurred".tr, val);
-  //     }
-  //   });
-  // }
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      user.fetchInfo(widget.endpoint);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,50 +41,57 @@ class _InfoState extends State<Info> {
       appBar: CustomAppBar(title: widget.title),
       body: Stack(
         children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-            child:
-                // user.isLoading.value
-                //     ? const CustomLoading()
-                //     :
-                Padding(
-                  padding: EdgeInsets.only(
-                    bottom: widget.confirmation != null ? 80 : 0,
-                  ),
-                  child: Html(
-                    data:
-                        // cleanHtml(user.settingsInfo[widget.data]) ??
-                        "<p style=\"color: red; text-align: center;\">No Data has been uploaded</p>",
-                    style: {
-                      // "p": Style(
-                      //   fontSize: FontSize(16),
-                      //   lineHeight: LineHeight(1.5),
-                      //   color: Colors.white,
-                      // ),
-                      "strong": Style(
-                        fontWeight: FontWeight.bold,
-                        fontSize: FontSize(16),
-                        color: Colors.white,
+          Obx(
+            () => SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              child: user.isLoading.value
+                  ? const CustomLoading()
+                  : Padding(
+                      padding: EdgeInsets.only(
+                        bottom: widget.confirmation != null ? 80 : 0,
                       ),
-                      "em": Style(
-                        fontStyle: FontStyle.italic,
-                        color: Colors.white,
+                      child: Html(
+                        data:
+                            cleanHtml(user.appInfo[widget.endpoint]) ??
+                            "<p style=\"color: red; text-align: center;\">No Data has been uploaded</p>",
+                        style: {
+                          "p": Style(
+                            fontSize: FontSize(16),
+                            lineHeight: LineHeight(1.5),
+                            color: Colors.black,
+                          ),
+                          "strong": Style(
+                            fontWeight: FontWeight.bold,
+                            fontSize: FontSize(16),
+                            color: Colors.black,
+                          ),
+                          "em": Style(
+                            fontStyle: FontStyle.italic,
+                            color: Colors.black,
+                          ),
+                          "li": Style(
+                            fontSize: FontSize(16),
+                            color: Colors.black,
+                          ),
+                          "ul": Style(
+                            padding: HtmlPaddings(left: HtmlPadding(20)),
+                          ),
+                          "ol": Style(
+                            padding: HtmlPaddings(left: HtmlPadding(20)),
+                          ),
+                          "a": Style(
+                            color: Colors.blueAccent,
+                            textDecoration: TextDecoration.underline,
+                          ),
+                        },
+                        onLinkTap: (url, attributes, element) {
+                          if (url != null) {
+                            launchUrl(Uri.parse(url));
+                          }
+                        },
                       ),
-                      "li": Style(fontSize: FontSize(16), color: Colors.white),
-                      "ul": Style(padding: HtmlPaddings(left: HtmlPadding(20))),
-                      "ol": Style(padding: HtmlPaddings(left: HtmlPadding(20))),
-                      "a": Style(
-                        color: Colors.blueAccent,
-                        textDecoration: TextDecoration.underline,
-                      ),
-                    },
-                    onLinkTap: (url, attributes, element) {
-                      if (url != null) {
-                        launchUrl(Uri.parse(url));
-                      }
-                    },
-                  ),
-                ),
+                    ),
+            ),
           ),
           if (widget.confirmation != null)
             Positioned(

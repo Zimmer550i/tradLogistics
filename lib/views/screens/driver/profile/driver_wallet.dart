@@ -1,13 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:template/controllers/wallet_controller.dart';
 import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/views/base/custom_app_bar.dart';
 import 'package:template/views/base/custom_button.dart';
+import 'package:template/views/base/custom_loading.dart';
 import 'package:template/views/screens/driver/profile/driver_withdraw.dart';
 
-class DriverWallet extends StatelessWidget {
+class DriverWallet extends StatefulWidget {
   const DriverWallet({super.key});
+
+  @override
+  State<DriverWallet> createState() => _DriverWalletState();
+}
+
+class _DriverWalletState extends State<DriverWallet> {
+  final wallet = Get.find<WalletController>();
+
+  @override
+  void initState() {
+    super.initState();
+    wallet.getWalletSummary();
+    wallet.getEarningsDashboard();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +50,15 @@ class DriverWallet extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  Text(
-                    "\$250.80",
-                    style: AppTexts.dmdr.copyWith(color: AppColors.blue),
+                  Obx(
+                    () => wallet.isLoading.value
+                        ? CustomLoading()
+                        : Text(
+                            "\$${wallet.walletSummary.value?.availableToWithdraw ?? ""}",
+                            style: AppTexts.dmdr.copyWith(
+                              color: AppColors.blue,
+                            ),
+                          ),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -66,33 +88,36 @@ class DriverWallet extends StatelessWidget {
               child: SingleChildScrollView(
                 padding: EdgeInsets.all(4),
                 child: SafeArea(
-                  child: Column(
-                    spacing: 12,
-                    children: [
-                      for (int i = 0; i < 10; i++)
-                        Container(
-                          padding: EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: AppColors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                offset: Offset(0, 2),
-                                blurRadius: 4.5,
-                                color: AppColors.black.withValues(alpha: 0.2),
-                              ),
-                            ],
+                  child: Obx(
+                    () => Column(
+                      spacing: 12,
+                      children: [
+                        for (var i
+                            in wallet.earningsDashboard.value!.withdrawHistory)
+                          Container(
+                            padding: EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  offset: Offset(0, 2),
+                                  blurRadius: 4.5,
+                                  color: AppColors.black.withValues(alpha: 0.2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Text(i.requestedAt, style: AppTexts.tmdr),
+                                Spacer(),
+                                Text("\$${i.amount}", style: AppTexts.dxsm),
+                              ],
+                            ),
                           ),
-                          child: Row(
-                            children: [
-                              Text("10.09.2025", style: AppTexts.tmdr),
-                              Spacer(),
-                              Text("\$120", style: AppTexts.dxsm),
-                            ],
-                          ),
-                        ),
-                      const SizedBox(height: 20),
-                    ],
+                        const SizedBox(height: 20),
+                      ],
+                    ),
                   ),
                 ),
               ),

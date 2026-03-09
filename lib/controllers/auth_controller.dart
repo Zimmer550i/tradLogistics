@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:get/get.dart';
 import 'package:template/controllers/base_controller.dart';
 import 'package:template/network/api_endpoints.dart';
@@ -10,7 +9,6 @@ import 'package:template/views/screens/auth/driver_personal_information.dart';
 import 'package:template/views/screens/auth/driver_document_review.dart';
 import 'package:template/views/screens/auth/driver_document_upload.dart';
 import 'package:template/views/screens/auth/driver_vehicle_information.dart';
-import 'package:template/views/screens/auth/driver_welcome.dart';
 import 'package:template/views/screens/auth/get_started.dart';
 import 'package:template/views/screens/auth/user_personal_information.dart';
 import 'package:template/views/screens/auth/user_welcome.dart';

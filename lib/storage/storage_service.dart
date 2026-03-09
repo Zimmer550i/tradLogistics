@@ -46,6 +46,29 @@ class StorageService {
   Future<void> saveLanguageCode(String code) =>
       _prefs.setString(StorageKeys.locale, code);
 
+  // Driver withdraw bank info
+  String? getWithdrawBankName() => _prefs.getString(StorageKeys.withdrawBankName);
+  Future<void> saveWithdrawBankName(String value) =>
+      _prefs.setString(StorageKeys.withdrawBankName, value);
+
+  String? getWithdrawBranch() => _prefs.getString(StorageKeys.withdrawBranch);
+  Future<void> saveWithdrawBranch(String value) =>
+      _prefs.setString(StorageKeys.withdrawBranch, value);
+
+  String? getWithdrawSwiftCode() => _prefs.getString(StorageKeys.withdrawSwiftCode);
+  Future<void> saveWithdrawSwiftCode(String value) =>
+      _prefs.setString(StorageKeys.withdrawSwiftCode, value);
+
+  String? getWithdrawAccountNumber() =>
+      _prefs.getString(StorageKeys.withdrawAccountNumber);
+  Future<void> saveWithdrawAccountNumber(String value) =>
+      _prefs.setString(StorageKeys.withdrawAccountNumber, value);
+
+  String? getWithdrawAccountType() =>
+      _prefs.getString(StorageKeys.withdrawAccountType);
+  Future<void> saveWithdrawAccountType(String value) =>
+      _prefs.setString(StorageKeys.withdrawAccountType, value);
+
   // Auth
   bool get isLoggedIn {
     final token = getToken();

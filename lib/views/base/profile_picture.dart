@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:template/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -34,11 +33,11 @@ class ProfilePicture extends StatelessWidget {
           if (!isEditable) {
             return;
           }
-      
-        //  File? image = await customImagePicker();
-            XFile? image = await ImagePicker().pickImage(
-    source: ImageSource.gallery,
-  );
+
+          File? image = await customImagePicker();
+          //         XFile? image = await ImagePicker().pickImage(
+          // source: ImageSource.gallery,
+          // );
           if (image != null && imagePickerCallback != null) {
             imagePickerCallback!(File(image.path));
           }
@@ -121,7 +120,7 @@ class ProfilePicture extends StatelessWidget {
                       shape: BoxShape.circle,
                       border: Border.all(color: AppColors.white),
                     ),
-      
+
                     child: Center(
                       child: CustomSvg(
                         asset: "assets/icons/edit.svg",

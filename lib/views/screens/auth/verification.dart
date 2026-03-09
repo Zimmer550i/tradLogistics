@@ -8,8 +8,6 @@ import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/utils/custom_svg.dart';
 import 'package:template/views/base/custom_button.dart';
-import 'package:template/views/screens/auth/driver_personal_information.dart';
-import 'package:template/views/screens/auth/user_personal_information.dart';
 
 class Verification extends StatefulWidget {
   final bool isDriver;

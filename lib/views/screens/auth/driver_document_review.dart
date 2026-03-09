@@ -4,7 +4,6 @@ import 'package:lottie/lottie.dart';
 import 'package:template/controllers/auth_controller.dart';
 import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
-import 'package:template/views/base/custom_button.dart';
 
 class DriverDocumentReview extends StatelessWidget {
   DriverDocumentReview({super.key});

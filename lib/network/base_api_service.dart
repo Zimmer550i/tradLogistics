@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:template/config/environment.dart';
 import 'package:template/network/api_exception.dart';
@@ -11,7 +11,6 @@ import 'package:template/utils/app_constants.dart';
 import 'package:template/utils/logger.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
-import 'package:template/views/app.dart';
 
 
 class BaseApiService {
@@ -72,7 +71,7 @@ class BaseApiService {
     dynamic body,
     Map<String, String>? extraHeaders,
   }) async {
-    print("POST Request to ${_buildUri(endpoint)} with body: ${jsonEncode(body)} and headers: ${{..._headers, ...?extraHeaders}}");
+    debugPrint("POST Request to ${_buildUri(endpoint)} with body: ${jsonEncode(body)} and headers: ${{..._headers, ...?extraHeaders}}");
     return _request(
       () => _client.post(
         _buildUri(endpoint),

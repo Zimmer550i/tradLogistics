@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:template/controllers/auth_controller.dart';
-import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/views/base/custom_button.dart';
 import 'package:template/views/base/custom_text_field.dart';
-import 'package:template/views/screens/auth/verification.dart';
 
 class Login extends StatelessWidget {
     Login({super.key,required this.isUser});
    final bool isUser; 
 
    final AuthController _authController = Get.find<AuthController>();
-    TextEditingController _phoneController = TextEditingController();
+    final TextEditingController _phoneController = TextEditingController();
 
-    GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
 
   @override

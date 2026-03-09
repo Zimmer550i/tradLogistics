@@ -50,20 +50,21 @@ class _DriverHomeState extends State<DriverHome> {
 
     await _getCurrentLocation();
 
-    _positionSub = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.best,
-        distanceFilter: 5,
-      ),
-    ).listen((position) {
-      if (!mounted) return;
-      setState(() {
-        _currentPosition = LatLng(position.latitude, position.longitude);
-      });
-      _mapController?.animateCamera(
-        CameraUpdate.newLatLng(_currentPosition!),
-      );
-    });
+    _positionSub =
+        Geolocator.getPositionStream(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.best,
+            distanceFilter: 5,
+          ),
+        ).listen((position) {
+          if (!mounted) return;
+          setState(() {
+            _currentPosition = LatLng(position.latitude, position.longitude);
+          });
+          _mapController?.animateCamera(
+            CameraUpdate.newLatLng(_currentPosition!),
+          );
+        });
   }
 
   Future<bool> _checkPermission() async {
@@ -80,9 +81,7 @@ class _DriverHomeState extends State<DriverHome> {
   Widget build(BuildContext context) {
     if (_currentPosition == null) {
       return Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(color: AppColors.blue),
-        ),
+        body: Center(child: CircularProgressIndicator(color: AppColors.blue)),
       );
     }
 
@@ -90,14 +89,14 @@ class _DriverHomeState extends State<DriverHome> {
       child: Stack(
         children: [
           GoogleMap(
-                  onMapCreated: (val) => _mapController = val,
-                  myLocationEnabled: _locationPermissionGranted,
-                  myLocationButtonEnabled: false,
-                  initialCameraPosition: CameraPosition(
-                    target: _currentPosition!,
-                    zoom: 17,
-                  ),
-                ),
+            onMapCreated: (val) => _mapController = val,
+            myLocationEnabled: _locationPermissionGranted,
+            myLocationButtonEnabled: false,
+            initialCameraPosition: CameraPosition(
+              target: _currentPosition!,
+              zoom: 17,
+            ),
+          ),
           if (isReady && showingBottomCard)
             Positioned.fill(
               child: Container(color: Colors.black.withValues(alpha: 0.22)),
@@ -158,19 +157,19 @@ class _DriverHomeState extends State<DriverHome> {
             // IgnorePointer(
             //   ignoring: true,
             //   child:
-               Center(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: () {
-                    setState(() {
-                      showingBottomCard = true;
-                    });
-                  },
-                  child: Lottie.asset("assets/lottie/ripple.json"),
-                ),
+            Center(
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () {
+                  setState(() {
+                    showingBottomCard = true;
+                  });
+                },
+                child: Lottie.asset("assets/lottie/ripple.json"),
               ),
-            // ),
+            ),
 
+          // ),
           if (isReady && (showingBottomCard || runningTrip))
             AnimatedPositioned(
               duration: Duration(milliseconds: 300),
@@ -193,8 +192,7 @@ class _DriverHomeState extends State<DriverHome> {
                     });
                   },
                   secondaryButtonText: "Decline",
-                  secondaryAction: () {
-                  },
+                  secondaryAction: () {},
                 ),
                 OrderWidget(
                   showPersonalInfo: true,
@@ -264,8 +262,7 @@ class _DriverHomeState extends State<DriverHome> {
         CameraUpdate.newLatLngZoom(_currentPosition!, 15),
       );
     } catch (e) {
-      print('Error getting location: $e');
+      debugPrint('Error getting location: $e');
     }
   }
-
 }
