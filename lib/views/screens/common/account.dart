@@ -90,7 +90,7 @@ class _AccountState extends State<Account> {
                           width: null,
                         ),
                         const SizedBox(height: 24),
-                        if (widget.isUser)
+                        if (!widget.isUser)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 24),
                             child: Row(

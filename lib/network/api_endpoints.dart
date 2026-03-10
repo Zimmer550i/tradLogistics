@@ -24,6 +24,9 @@ class ApiEndpoints {
   static String adminWithdrawProcess(int id) =>
       '/transaction/admin/withdraw/$id/process/';
 
+  // Deliveries
+  static const String userDeliveries = '/order/deliveries/';
+
   // Products
   static const String products = '/products/';
   static String userById(int id) => '/users/$id';

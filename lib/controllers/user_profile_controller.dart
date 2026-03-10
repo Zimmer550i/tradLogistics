@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:get/get.dart';
 import 'package:template/controllers/base_controller.dart';
 import 'package:template/models/user_profile_model.dart';

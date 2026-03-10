@@ -33,7 +33,7 @@ class UserProfileModel {
   final String? averageRating;
 
   final bool availabilityStatus;
-  final bool isOnline;
+  bool isOnline;
 
   final bool isVerified;
   final String? verifiedAt;

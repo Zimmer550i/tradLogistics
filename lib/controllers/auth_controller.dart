@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:get/get.dart';
 import 'package:template/controllers/base_controller.dart';
+import 'package:template/controllers/user_profile_controller.dart';
 import 'package:template/network/api_endpoints.dart';
 import 'package:template/network/base_api_service.dart';
 import 'package:template/storage/storage_service.dart';
@@ -83,6 +84,7 @@ class AuthController extends BaseController {
       if (data['status'] == 'success') {
         _storage.saveToken(data['access_token']);
         _storage.saveRole(data['data']['role']);
+        Get.find<UserProfileController>().getUserProfile();
         if (data['data']['role'] == 'customer') {
           if (data['data']['first_name'] != null) {
             Get.off(() => App(isUser: true));

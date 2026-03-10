@@ -17,13 +17,18 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   int index = 0;
-  List<Widget> userPages = [UserHome(), Orders(), Inbox(), Account()];
+  List<Widget> userPages = [
+    UserHome(),
+    Orders(),
+    Inbox(),
+    Account(isUser: true),
+  ];
   List<Widget> driverPages = [
     DriverHome(),
     Orders(canSeePast: false),
     DriverEarnings(),
     Inbox(),
-    Account(),
+    Account(isUser: false),
   ];
 
   @override
