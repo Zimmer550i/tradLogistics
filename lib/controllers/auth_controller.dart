@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:get/get.dart';
 import 'package:template/controllers/base_controller.dart';
 import 'package:template/controllers/user_profile_controller.dart';
+import 'package:template/models/user_profile_model.dart';
 import 'package:template/network/api_endpoints.dart';
 import 'package:template/network/base_api_service.dart';
 import 'package:template/storage/storage_service.dart';
@@ -26,6 +27,9 @@ class AuthController extends BaseController {
       if (data == null || data['status'] != 'success') {
         _goToLogin();
         return;
+      } else {
+        Get.find<UserProfileController>().userProfile.value =
+            UserProfileModel.fromJson(data['data']);
       }
 
       final profile = data['data'];

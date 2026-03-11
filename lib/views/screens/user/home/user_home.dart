@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:template/controllers/maps_controller.dart';
 import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/utils/custom_svg.dart';
@@ -16,11 +17,26 @@ class UserHome extends StatefulWidget {
 }
 
 class _UserHomeState extends State<UserHome> {
-  // ignore: unused_field
-  GoogleMapController? _mapController;
+  final mapsController = Get.find<MapsController>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      mapsController.initLocation();
+    });
+  }
+
+  @override
+  void dispose() {
+    mapsController.stopLocationUpdates();
+    mapsController.clearMapController();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final fallbackPosition = LatLng(23.00, 90.000);
     return Scaffold(
       appBar: HomeBar(),
       body: Padding(
@@ -84,15 +100,20 @@ class _UserHomeState extends State<UserHome> {
             Expanded(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: GoogleMap(
-                  onMapCreated: (val) => _mapController = val,
-                  myLocationEnabled: true,
-                  myLocationButtonEnabled: false,
-                  initialCameraPosition: CameraPosition(
-                    target: LatLng(23.00, 90.000),
-                    zoom: 17,
-                  ),
-                ),
+                child: Obx(() {
+                  final currentPosition =
+                      mapsController.currentPosition.value ?? fallbackPosition;
+                  return GoogleMap(
+                    onMapCreated: mapsController.setMapController,
+                    myLocationEnabled:
+                        mapsController.locationPermissionGranted.value,
+                    myLocationButtonEnabled: false,
+                    initialCameraPosition: CameraPosition(
+                      target: currentPosition,
+                      zoom: 17,
+                    ),
+                  );
+                }),
               ),
             ),
             const SizedBox(height: 12),

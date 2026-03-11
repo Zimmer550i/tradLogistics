@@ -1,11 +1,9 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lottie/lottie.dart';
 import 'package:template/controllers/driver_delivery_controller.dart';
+import 'package:template/controllers/maps_controller.dart';
 import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/utils/custom_svg.dart';
@@ -18,13 +16,9 @@ class DriverHome extends StatefulWidget {
   @override
   State<DriverHome> createState() => _DriverHomeState();
 }
-
 class _DriverHomeState extends State<DriverHome> {
   final controller = Get.find<DriverDeliveryController>();
-  GoogleMapController? _mapController;
-  StreamSubscription<Position>? _positionSub;
-  LatLng? _currentPosition;
-  bool _locationPermissionGranted = false;
+  final mapsController = Get.find<MapsController>();
   int state = 0;
   bool showingBottomCard = false;
   bool runningTrip = false;
@@ -33,70 +27,36 @@ class _DriverHomeState extends State<DriverHome> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initLocation();
+      mapsController.initLocation();
     });
   }
 
   @override
   void dispose() {
-    _positionSub?.cancel();
-    _mapController?.dispose();
+    mapsController.stopLocationUpdates();
+    mapsController.clearMapController();
     super.dispose();
-  }
-
-  Future<void> _initLocation() async {
-    final hasPermission = await _checkPermission();
-    if (!hasPermission || !mounted) return;
-
-    setState(() => _locationPermissionGranted = true);
-
-    await _getCurrentLocation();
-
-    _positionSub =
-        Geolocator.getPositionStream(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.best,
-            distanceFilter: 5,
-          ),
-        ).listen((position) {
-          if (!mounted) return;
-          setState(() {
-            _currentPosition = LatLng(position.latitude, position.longitude);
-          });
-          _mapController?.animateCamera(
-            CameraUpdate.newLatLng(_currentPosition!),
-          );
-        });
-  }
-
-  Future<bool> _checkPermission() async {
-    if (!await Geolocator.isLocationServiceEnabled()) return false;
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) return false;
-    }
-    return permission != LocationPermission.deniedForever;
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_currentPosition == null) {
-      return Scaffold(
-        body: Center(child: CircularProgressIndicator(color: AppColors.blue)),
-      );
-    }
+    return Obx(() {
+      final currentPosition = mapsController.currentPosition.value;
+      if (currentPosition == null) {
+        return Scaffold(
+          body: Center(child: CircularProgressIndicator(color: AppColors.blue)),
+        );
+      }
 
-    return SafeArea(
-      child: Obx(
-        () => Stack(
+      return SafeArea(
+        child: Stack(
           children: [
             GoogleMap(
-              onMapCreated: (val) => _mapController = val,
-              myLocationEnabled: _locationPermissionGranted,
+              onMapCreated: mapsController.setMapController,
+              myLocationEnabled: mapsController.locationPermissionGranted.value,
               myLocationButtonEnabled: false,
               initialCameraPosition: CameraPosition(
-                target: _currentPosition!,
+                target: currentPosition,
                 zoom: 17,
               ),
             ),
@@ -240,28 +200,7 @@ class _DriverHomeState extends State<DriverHome> {
               ),
           ],
         ),
-      ),
-    );
-  }
-
-  Future<void> _getCurrentLocation() async {
-    try {
-      final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.best,
-        ),
       );
-
-      if (!mounted) return;
-
-      setState(() {
-        _currentPosition = LatLng(position.latitude, position.longitude);
-      });
-      _mapController?.animateCamera(
-        CameraUpdate.newLatLngZoom(_currentPosition!, 15),
-      );
-    } catch (e) {
-      debugPrint('Error getting location: $e');
-    }
+    });
   }
 }

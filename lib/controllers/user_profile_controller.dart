@@ -13,11 +13,6 @@ class UserProfileController extends BaseController {
 
   UserProfileModel get data => userProfile.value!;
 
-  @override
-  void onInit() {
-    super.onInit();
-    getUserProfile();
-  }
 
   Future<void> getUserProfile() async {
     await apiCall(() async {

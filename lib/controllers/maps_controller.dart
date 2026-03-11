@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:template/models/place_prediction.dart';
 import 'package:uuid/uuid.dart';
@@ -10,12 +13,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 class MapsController extends GetxController {
   var predictions = <PlacePrediction>[].obs;
   Rxn<PlacePrediction> selected = Rxn();
-  var query = ''.obs; 
+  var query = ''.obs;
   var isLoading = false.obs;
+  final Rxn<LatLng> currentPosition = Rxn<LatLng>();
+  final RxBool locationPermissionGranted = false.obs;
 
   String? _sessionToken;
   final String _apiKey = dotenv.env['GOOGLE_API_KEY'] ?? '';
-  final int cacheDays = 3; 
+  final int cacheDays = 3;
+  GoogleMapController? _mapController;
+  StreamSubscription<Position>? _positionSub;
+  late final Future<SharedPreferences> _prefsFuture =
+      SharedPreferences.getInstance();
 
   // Count
   int hit = 0;
@@ -33,22 +42,107 @@ class MapsController extends GetxController {
     );
   }
 
+  @override
+  void onClose() {
+    _positionSub?.cancel();
+    _mapController?.dispose();
+    super.onClose();
+  }
+
+  void setMapController(GoogleMapController controller) {
+    if (_mapController != controller) {
+      _mapController?.dispose();
+      _mapController = controller;
+    }
+    final position = currentPosition.value;
+    if (position != null) {
+      _mapController?.animateCamera(CameraUpdate.newLatLng(position));
+    }
+  }
+
+  void clearMapController() {
+    _mapController?.dispose();
+    _mapController = null;
+  }
+
+  Future<void> initLocation() async {
+    final hasPermission = await _checkPermission();
+    if (!hasPermission || isClosed) return;
+
+    locationPermissionGranted.value = true;
+
+    await _getCurrentLocation();
+
+    await _positionSub?.cancel();
+    _positionSub =
+        Geolocator.getPositionStream(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.best,
+            distanceFilter: 5,
+          ),
+        ).listen((position) {
+          currentPosition.value = LatLng(position.latitude, position.longitude);
+          _mapController?.animateCamera(
+            CameraUpdate.newLatLng(currentPosition.value!),
+          );
+        });
+  }
+
+  Future<void> stopLocationUpdates() async {
+    await _positionSub?.cancel();
+    _positionSub = null;
+  }
+
+  Future<bool> _checkPermission() async {
+    if (!await Geolocator.isLocationServiceEnabled()) return false;
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) return false;
+    }
+    return permission != LocationPermission.deniedForever;
+  }
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.best,
+        ),
+      );
+
+      currentPosition.value = LatLng(position.latitude, position.longitude);
+      _mapController?.animateCamera(
+        CameraUpdate.newLatLngZoom(currentPosition.value!, 15),
+      );
+    } catch (e) {
+      debugPrint('Error getting location: $e');
+    }
+  }
+
+  /////////////////////////////////
+  // HANDLE LOCATION SUGGESTION  //
+  /////////////////////////////////
+
   // 1. Update the query signal (called from UI)
   void onSearchChanged(String val) {
     query.value = val;
-    _handleCachedSuggestions(val);
+    if (val.isEmpty) {
+      predictions.clear();
+      isLoading.value = false;
+    }
   }
 
   // 3. Selection Logic
   void selectPrediction(
     PlacePrediction prediction,
-    TextEditingController textController,
-  ) {
+    TextEditingController textController, {
+    void Function(double, double)? callback,
+  }) {
     getPlacePosition(prediction.placeId).then((newPosition) {
-      // Get.find<PostController>().customLocation.value = LatLng(
-      //   newPosition?['lat'],
-      //   newPosition?['lng'],
-      // );
+      if (callback != null) {
+        callback(newPosition?['lat'], newPosition?['lng']);
+      }
     });
     selected.value = prediction;
     textController.text = prediction.description;
@@ -57,7 +151,10 @@ class MapsController extends GetxController {
     _sessionToken = const Uuid().v4(); // Reset session for Google billing
   }
 
-  // 4. Get place details (lat/lng) from placeId
+  /////////////////////////////
+  // Convert Positional Data //
+  /////////////////////////////
+
   Future<Map<String, dynamic>?> getPlacePosition(String? placeId) async {
     if (placeId == null) return null;
 
@@ -80,7 +177,6 @@ class MapsController extends GetxController {
     return null;
   }
 
-  // 5. Reverse geocoding: Get address from lat/lng
   Future<String?> getAddressFromLatLng(double lat, double lng) async {
     final String url =
         'https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lng&key=$_apiKey';
@@ -100,33 +196,28 @@ class MapsController extends GetxController {
     return null;
   }
 
+  /////////////////////////////
+  // HANDLE CACHED RESPONSES //
+  /////////////////////////////
+
   // Check cache first, then fetch from API if expired or missing
   Future<void> _handleCachedSuggestions(String input) async {
     if (input.isEmpty) {
       predictions.clear();
+      isLoading.value = false;
       return;
     }
 
-    final prefs = await SharedPreferences.getInstance();
-    final String cacheKey = "place_cache_$input";
-    final String timeKey = "place_cache_time_$input";
+    final prefs = await _prefsFuture;
+    final String cacheKey = _cacheKey(input);
+    final String timeKey = _cacheTimeKey(input);
 
     final cached = prefs.getString(cacheKey);
     final cachedTime = prefs.getInt(timeKey);
 
     if (cached != null && cachedTime != null) {
-      final DateTime saved = DateTime.fromMillisecondsSinceEpoch(cachedTime);
-      final bool valid = DateTime.now().difference(saved).inDays < cacheDays;
-
-      if (valid) {
-        debugPrint("Hit Count: ${hit++}");
-        final decoded = json.decode(cached) as List;
-        predictions.value = decoded
-            .map((p) => PlacePrediction.fromJson(p))
-            .toList();
-        isLoading.value = false;
-        return; // use cached instantly
-      }
+      final bool valid = _isCacheValid(cachedTime);
+      if (valid) return _useCachedPredictions(cached);
     }
 
     // Cache expired → fetch new data
@@ -140,29 +231,47 @@ class MapsController extends GetxController {
     String timeKey,
   ) async {
     isLoading.value = true;
+    _incrementMiss();
     final String request =
         'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&key=$_apiKey&sessiontoken=$_sessionToken';
 
     try {
       final response = await http.get(Uri.parse(request));
-      debugPrint("Miss Count: ${miss++}");
       if (response.statusCode == 200) {
         final result = json.decode(response.body);
 
         if (result['status'] == 'OK') {
-          final list = (result['predictions'] as List)
-              .map((p) => PlacePrediction.fromJson(p))
-              .toList();
-          predictions.value = list;
+          predictions.value = _parsePredictions(result['predictions'] as List);
 
-          final prefs = await SharedPreferences.getInstance();
+          final prefs = await _prefsFuture;
           await prefs.setString(cacheKey, json.encode(result['predictions']));
           await prefs.setInt(timeKey, DateTime.now().millisecondsSinceEpoch);
         }
       }
     } catch (e) {
       debugPrint("Error fetching places: $e");
+    } finally {
+      isLoading.value = false;
     }
+  }
+
+  String _cacheKey(String input) => "place_cache_$input";
+  String _cacheTimeKey(String input) => "place_cache_time_$input";
+
+  bool _isCacheValid(int cachedTime) {
+    final saved = DateTime.fromMillisecondsSinceEpoch(cachedTime);
+    return DateTime.now().difference(saved).inDays < cacheDays;
+  }
+
+  void _useCachedPredictions(String cachedJson) {
+    _incrementHit();
+    predictions.value = _parsePredictions(json.decode(cachedJson) as List);
     isLoading.value = false;
   }
+
+  List<PlacePrediction> _parsePredictions(List raw) =>
+      raw.map((p) => PlacePrediction.fromJson(p)).toList();
+
+  void _incrementHit() => debugPrint("Hit Count: ${hit++}");
+  void _incrementMiss() => debugPrint("Miss Count: ${miss++}");
 }

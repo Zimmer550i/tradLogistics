@@ -1,3 +1,4 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:template/config/environment.dart';
 import 'package:template/storage/storage_service.dart';
 import 'package:template/themes/light_theme.dart';
@@ -16,6 +17,7 @@ import 'helpers/route.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   EnvironmentConfig.init(Environment.dev);
+  await dotenv.load();
 
   // StorageService আগে init করতে হবে — controllers এর উপর depend করে
   await StorageService.init();

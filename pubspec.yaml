@@ -52,6 +52,7 @@ flutter:
     - assets/icons/
     - assets/language/
     - assets/lottie/
+    - .env
 
 
   fonts:
