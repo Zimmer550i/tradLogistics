@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:template/controllers/maps_controller.dart';
+import 'package:template/models/delivery_model.dart';
 import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/utils/custom_svg.dart';
@@ -46,30 +47,30 @@ class _UserHomeState extends State<UserHome> {
             const SizedBox(height: 20),
             Align(
               alignment: Alignment.centerLeft,
-              child: Text("Choose Vehicle Type", style: AppTexts.tlgr),
+              child: Text("Choose Service Type", style: AppTexts.tlgr),
             ),
             const SizedBox(height: 8),
+            // Row(
+            //   spacing: 12,
+            //   children: [
+            //     vehicleType("bike", "Bike", 0),
+            //     vehicleType("car", "Car", 1),
+            //   ],
+            // ),
+            // const SizedBox(height: 12),
             Row(
               spacing: 12,
               children: [
-                vehicleType("bike", "Bike", 0),
-                vehicleType("car", "Car", 1),
+                vehicleType("pickup", "Pickup/Delivery", 1),
+                vehicleType("wrecker", "Wrecker", 2),
               ],
             ),
             const SizedBox(height: 12),
             Row(
               spacing: 12,
               children: [
-                vehicleType("van", "Van", 2),
-                vehicleType("wrecker", "Wrecker", 3),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              spacing: 12,
-              children: [
-                vehicleType("truck", "Removal Truck", 4),
-                vehicleType("gas", "Gas Cylinder", 5),
+                vehicleType("truck", "Removal Truck", 3),
+                vehicleType("gas", "Gas Cylinder", 4),
               ],
             ),
             const SizedBox(height: 12),
@@ -127,10 +128,23 @@ class _UserHomeState extends State<UserHome> {
     return Expanded(
       child: GestureDetector(
         onTap: () {
-          if (name.contains("Gas")) {
-            Get.to(() => OrderGas());
-          } else {
-            Get.to(() => UserPlanDelivery(autoFocusField: 0));
+          switch (name) {
+            case "Pickup/Delivery":
+              Get.to(
+                () => UserPlanDelivery(serviceType: ServiceType.pickupDelivery),
+              );
+              break;
+            case "Wrecker":
+              Get.to(() => UserPlanDelivery(serviceType: ServiceType.wrecker));
+              break;
+            case "Removal Truck":
+              Get.to(
+                () => UserPlanDelivery(serviceType: ServiceType.removalTruck),
+              );
+              break;
+            case "Gas Cylinder":
+              Get.to(() => OrderGas());
+              break;
           }
         },
         child: Container(

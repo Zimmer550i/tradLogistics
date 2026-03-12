@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:template/controllers/maps_controller.dart';
 import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/utils/custom_svg.dart';
@@ -7,6 +8,7 @@ import 'package:template/views/base/custom_app_bar.dart';
 import 'package:template/views/base/custom_button.dart';
 import 'package:template/views/base/custom_drop_down.dart';
 import 'package:template/views/screens/user/gas/price_summary.dart';
+import 'package:template/models/delivery_model.dart';
 
 class OrderGas extends StatefulWidget {
   const OrderGas({super.key});
@@ -16,11 +18,57 @@ class OrderGas extends StatefulWidget {
 }
 
 class _OrderGasState extends State<OrderGas> {
+  final map = Get.find<MapsController>();
+
   int speed = -1;
   final _focusNode = FocusNode();
+  final deliveryAddressController = TextEditingController();
+  String? cylinderSize;
+  String? brand;
+  String? transactionType;
+  double? pickupLat;
+  double? pickupLng;
+  Map<String, dynamic> payload = {};
 
-  void onSubmit() {
-    Get.to(() => PriceSummary());
+  void onSubmit() async {
+    final address = deliveryAddressController.text.trim();
+    final speedVal = speed == 0
+        ? "standard"
+        : speed == 1
+        ? "express"
+        : speed == 2
+        ? "urgent"
+        : null;
+    final cleanedCylinderSize = cylinderSize?.split(" ").first.trim();
+    final cleanedTransactionType = transactionType == null
+        ? null
+        : transactionType == "Refil/Exchange"
+        ? "refill"
+        : transactionType == "New Cylinder"
+        ? "new_cylinder"
+        : transactionType!.toLowerCase().replaceAll(" ", "_");
+
+    payload = <String, dynamic>{
+      "service_type": ServiceTypeHelper.toJson(ServiceType.cookingGas),
+      "pickup_address": address.isEmpty ? null : address,
+      "pickup_lat": pickupLat,
+      "pickup_lng": pickupLng,
+      "scheduled_at": null,
+      "payment_method": null,
+      "service_data": {
+        "gas": {
+          "cylinder_size": cleanedCylinderSize,
+          "brand": brand == null
+              ? null
+              : (brand == "Any Available" ? null : brand),
+          "transaction_type": cleanedTransactionType,
+          "delivery_speed": speedVal,
+        },
+      },
+    };
+    debugPrint("Prepared payload: $payload");
+
+    Get.to(() => PriceSummary(payload: payload));
   }
 
   @override
@@ -51,6 +99,8 @@ class _OrderGasState extends State<OrderGas> {
                     Expanded(
                       child: TextField(
                         style: AppTexts.tsmm,
+                        onChanged: map.onSearchChanged,
+                        controller: deliveryAddressController,
                         autofocus: true,
                         focusNode: _focusNode,
                         onTapOutside: (event) => _focusNode.unfocus(),
@@ -68,6 +118,67 @@ class _OrderGasState extends State<OrderGas> {
                   ],
                 ),
               ),
+              Obx(
+                () => map.predictions.isNotEmpty
+                    ? Container(
+                        margin: EdgeInsets.symmetric(vertical: 8),
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              offset: Offset(0, 4),
+                              blurRadius: 11,
+                              color: Colors.black.withValues(alpha: 0.19),
+                            ),
+                          ],
+                        ),
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          itemBuilder: (context, index) => GestureDetector(
+                            onTap: () {
+                              map.selectPrediction(
+                                map.predictions.elementAt(index),
+                                deliveryAddressController,
+                                callback: (lat, lng) {
+                                  setState(() {
+                                    pickupLat = lat;
+                                    pickupLng = lng;
+                                  });
+                                },
+                              );
+                            },
+                            child: Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(
+                                vertical: 4,
+                                horizontal: 8,
+                              ),
+                              child: Row(
+                                spacing: 10,
+                                children: [
+                                  CustomSvg(asset: "assets/icons/location.svg"),
+                                  Expanded(
+                                    child: Text(
+                                      map.predictions
+                                          .elementAt(index)
+                                          .description,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          separatorBuilder: (context, index) => Divider(
+                            thickness: 0.5,
+                            color: AppColors.neutral.shade200,
+                          ),
+                          itemCount: map.predictions.length,
+                        ),
+                      )
+                    : Container(),
+              ),
               const SizedBox(height: 16),
               Align(
                 alignment: Alignment.centerLeft,
@@ -77,16 +188,19 @@ class _OrderGasState extends State<OrderGas> {
               CustomDropDown(
                 hintText: "Select Cylinder Size",
                 options: ["25 lb", "100 lb"],
+                onChanged: (value) => cylinderSize = value,
               ),
               const SizedBox(height: 16),
               CustomDropDown(
                 hintText: "Select Brand",
                 options: ["LGL", "GasPro", "Any Available"],
+                onChanged: (value) => brand = value,
               ),
               const SizedBox(height: 16),
               CustomDropDown(
                 hintText: "Transaction Type",
                 options: ["Refil/Exchange", "New Cylinder"],
+                onChanged: (value) => transactionType = value,
               ),
               const SizedBox(height: 16),
               Align(

@@ -13,7 +13,6 @@ class UserProfileController extends BaseController {
 
   UserProfileModel get data => userProfile.value!;
 
-
   Future<void> getUserProfile() async {
     await apiCall(() async {
       final data = await _api.get(ApiEndpoints.getUserProfile);
@@ -55,6 +54,6 @@ class UserProfileController extends BaseController {
       final data = await _api.get(endpoint);
 
       appInfo[endpoint] = (data['data'] as List).first['content'];
-    }, showLoading: true);
+    });
   }
 }

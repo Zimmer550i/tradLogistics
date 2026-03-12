@@ -1,12 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:template/controllers/user_delivery_controller.dart';
 import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/utils/custom_svg.dart';
 import 'package:template/views/base/custom_app_bar.dart';
 import 'package:template/views/base/custom_button.dart';
+import 'package:template/views/screens/user/home/user_finding_driver.dart';
+import 'package:template/models/delivery_model.dart';
 
 class PriceSummary extends StatefulWidget {
-  const PriceSummary({super.key});
+  final Map<String, dynamic> payload;
+  const PriceSummary({super.key, required this.payload});
 
   @override
   State<PriceSummary> createState() => _PriceSummaryState();
@@ -16,7 +23,25 @@ class _PriceSummaryState extends State<PriceSummary> {
   int paymentType = -1;
 
   void onSubmit() async {
-    
+    widget.payload["payment_method"] = paymentType == 0
+        ? PaymentMethodHelper.toJson(PaymentMethod.cash)
+        : paymentType == 1
+        ? PaymentMethodHelper.toJson(PaymentMethod.stripe)
+        // : paymentType == 2
+        // ? PaymentMethodHelper.toJson(PaymentMethod.lynk)
+        // : paymentType == 3
+        // ? PaymentMethodHelper.toJson(PaymentMethod.jnMoney)
+        : null;
+
+    debugPrint("Updated payload: ${widget.payload}");
+    final controller = Get.find<UserDeliveryController>();
+    controller.createDelivery(widget.payload);
+
+    late StreamSubscription pageChangeListener;
+    pageChangeListener = controller.currentDelivery.listen((val) {
+      Get.to(() => UserFindingDriver());
+      pageChangeListener.cancel();
+    });
   }
 
   @override
@@ -113,11 +138,11 @@ class _PriceSummaryState extends State<PriceSummary> {
               paymentMethod("Cash", "cash", 0),
               const SizedBox(height: 8),
               paymentMethod("Stripe", "stripe", 1, isPng: true),
-              const SizedBox(height: 8),
-              paymentMethod("Lynk", "lynk", 2, isPng: true),
-              const SizedBox(height: 8),
-              paymentMethod("Cash", "google", 3),
 
+              // const SizedBox(height: 8),
+              // paymentMethod("Lynk", "lynk", 2, isPng: true),
+              // const SizedBox(height: 8),
+              // paymentMethod("Cash", "google", 3),
               const SizedBox(height: 100),
               CustomButton(onTap: onSubmit, text: "Confirm Order"),
             ],

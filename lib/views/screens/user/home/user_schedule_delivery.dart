@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:template/controllers/user_delivery_controller.dart';
 import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/utils/custom_svg.dart';
@@ -8,18 +11,44 @@ import 'package:template/views/base/custom_app_bar.dart';
 import 'package:template/views/base/custom_button.dart';
 import 'package:template/views/base/custom_text_field.dart';
 import 'package:template/views/screens/user/home/user_finding_driver.dart';
+import 'package:template/models/delivery_model.dart';
 
 class UserScheduleDelivery extends StatefulWidget {
-  const UserScheduleDelivery({super.key});
+  final Map<String, dynamic> payload;
+  const UserScheduleDelivery({super.key, required this.payload});
 
   @override
   State<UserScheduleDelivery> createState() => _UserScheduleDeliveryState();
 }
 
 class _UserScheduleDeliveryState extends State<UserScheduleDelivery> {
+  final delivery = Get.find<UserDeliveryController>();
+
   TimeOfDay? time;
   DateTime? date;
   int payment = -1;
+
+  void updatePayload() {
+    DateTime? scheduledAt;
+    if (date != null && time != null) {
+      scheduledAt = DateTime(
+        date!.year,
+        date!.month,
+        date!.day,
+        time!.hour,
+        time!.minute,
+      ).toUtc();
+    }
+
+    widget.payload["scheduled_at"] = scheduledAt?.toIso8601String();
+    widget.payload["payment_method"] = payment == 0
+        ? PaymentMethodHelper.toJson(PaymentMethod.cash)
+        : payment == 1
+        ? PaymentMethodHelper.toJson(PaymentMethod.stripe)
+        : null;
+
+    debugPrint("Updated payload: ${widget.payload}");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -140,9 +169,16 @@ class _UserScheduleDeliveryState extends State<UserScheduleDelivery> {
               const SizedBox(height: 32),
               CustomButton(
                 onTap: () {
-                  Get.to(() => UserFindingDriver());
+                  updatePayload();
+                  delivery.createDelivery(widget.payload);
+                  late StreamSubscription pageChangeListener;
+                  pageChangeListener = delivery.currentDelivery.listen((val) {
+                    Get.to(() => UserFindingDriver());
+                    pageChangeListener.cancel();
+                  });
                 },
-                text: "Continue",
+                isLoading: delivery.isLoading.value,
+                text: "Find Driver",
               ),
             ],
           ),

@@ -8,6 +8,7 @@ import 'package:template/controllers/auth_controller.dart';
 import 'package:template/controllers/driver_delivery_controller.dart';
 import 'package:template/controllers/loading_controller.dart';
 import 'package:template/controllers/maps_controller.dart';
+import 'package:template/controllers/user_delivery_controller.dart';
 import 'package:template/controllers/user_profile_controller.dart';
 import 'package:template/controllers/wallet_controller.dart';
 import '../controllers/localization_controller.dart';
@@ -26,6 +27,7 @@ Future<Map<String, Map<String, String>>> init() async {
   Get.put(UserProfileController());
   Get.put(WalletController());
   Get.put(MapsController());
+  Get.put(UserDeliveryController());
   Get.put(DriverDeliveryController());
 
   Get.lazyPut(() => ThemeController(sharedPreferences: Get.find()));

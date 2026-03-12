@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:template/controllers/base_controller.dart';
 import 'package:template/controllers/user_profile_controller.dart';
 import 'package:template/models/user_profile_model.dart';
@@ -36,16 +38,16 @@ class AuthController extends BaseController {
       final role = _storage.getRole();
 
       if (role == 'customer') {
-        if (profile['first_name'] == null) {
+        if (profile['first_name'] == null || profile['phone'] == null) {
           Get.offAll(() => UserPersonalInformation());
         } else {
-          Get.offAll(() => App(isUser: true));
+          Get.offAll(() => App(isUser: true), routeName: "/app");
         }
       } else {
         // Driver — step by step check
         if (data['data']['d_type'] == "gas") {
-          Get.offAll(() => App(isUser: false));
-        } else if (profile['first_name'] == null) {
+          Get.offAll(() => App(isUser: false), routeName: "/app");
+        } else if (profile['first_name'] == null || profile['phone'] == null) {
           Get.offAll(() => DriverPersonalInformation());
         } else if (profile['vehicle'] == null) {
           Get.offAll(() => DriverVehicleInformation());
@@ -54,7 +56,7 @@ class AuthController extends BaseController {
         } else if (profile['is_verified'] == false) {
           Get.offAll(() => DriverDocumentReview());
         } else {
-          Get.offAll(() => App(isUser: false));
+          Get.offAll(() => App(isUser: false), routeName: "/app");
         }
       }
     } catch (_) {
@@ -91,13 +93,13 @@ class AuthController extends BaseController {
         Get.find<UserProfileController>().getUserProfile();
         if (data['data']['role'] == 'customer') {
           if (data['data']['first_name'] != null) {
-            Get.off(() => App(isUser: true));
+            Get.offAll(() => App(isUser: true), routeName: "/app");
           } else {
             Get.off(() => UserPersonalInformation());
           }
         } else {
           if (data['data']['d_type'] == "gas") {
-            Get.offAll(() => App(isUser: false));
+            Get.offAll(() => App(isUser: false), routeName: "/app");
           } else if (data['data']['first_name'] == null) {
             Get.offAll(() => DriverPersonalInformation());
           } else if (data['data']['vehicle'] == null) {
@@ -107,7 +109,7 @@ class AuthController extends BaseController {
           } else if (data['data']['is_verified'] == false) {
             Get.offAll(() => DriverDocumentReview());
           } else {
-            Get.offAll(() => App(isUser: false));
+            Get.offAll(() => App(isUser: false), routeName: "/app");
           }
         }
       }
@@ -221,4 +223,74 @@ class AuthController extends BaseController {
     await _storage.removeToken();
     Get.offAll(() => const GetStarted());
   }
+
+  Future<String> googleLogin() async {
+    isLoading(true);
+    try {
+      var signIn = GoogleSignIn();
+      var signInAccount = await signIn.signIn();
+      if (signInAccount != null) {
+        final response = await _api.post(
+          "/api/v1/auth/google_login/",
+          body: {
+            "email": signInAccount.email,
+            "picture": signInAccount.photoUrl,
+            "full_name": signInAccount.displayName,
+            "google_id": signInAccount.id,
+          },
+        );
+        var body = jsonDecode(response.body);
+
+        if (response.statusCode == 200) {
+          Get.find<UserProfileController>().userProfile.value =
+              UserProfileModel.fromJson(body['data']);
+          _storage.saveToken(body['access']);
+
+          return "success";
+        } else {
+          return body['message'] ?? "Connection Error";
+        }
+      } else {
+        return "Google Sign in failed.";
+      }
+    } catch (e) {
+      return "Unexpected error: ${e.toString()}";
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  // Future<String> appleLogin() async {
+  //   isLoading(true);
+  //   try {
+  //     final credential = await SignInWithApple.getAppleIDCredential(
+  //       scopes: [
+  //         AppleIDAuthorizationScopes.email,
+  //         AppleIDAuthorizationScopes.fullName,
+  //       ],
+  //     );
+
+  //     if (credential.identityToken != null) {
+  //       final response = await api.post("/api/v1/auth/apple_login/", {
+  //         "identity_token": credential.identityToken,
+  //       });
+
+  //       var body = jsonDecode(response.body);
+
+  //       if (response.statusCode == 200) {
+  //         Get.find<UserController>().setInfo(body['user']);
+  //         setToken(body['access']);
+  //         return "success";
+  //       } else {
+  //         return body['message'] ?? "Connection Error";
+  //       }
+  //     } else {
+  //       return "Apple Sign in failed.";
+  //     }
+  //   } catch (e) {
+  //     return "Unexpected error: ${e.toString()}";
+  //   } finally {
+  //     isLoading(false);
+  //   }
+  // }
 }

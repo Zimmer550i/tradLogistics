@@ -20,6 +20,7 @@ class MapsController extends GetxController {
 
   String? _sessionToken;
   final String _apiKey = dotenv.env['GOOGLE_API_KEY'] ?? '';
+  final String mapUrl = "https://maps.googleapis.com/maps/api";
   final int cacheDays = 3;
   GoogleMapController? _mapController;
   StreamSubscription<Position>? _positionSub;
@@ -159,7 +160,7 @@ class MapsController extends GetxController {
     if (placeId == null) return null;
 
     final String url =
-        'https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=$_apiKey&sessiontoken=$_sessionToken';
+        '$mapUrl/place/details/json?place_id=$placeId&key=$_apiKey&sessiontoken=$_sessionToken';
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -178,8 +179,7 @@ class MapsController extends GetxController {
   }
 
   Future<String?> getAddressFromLatLng(double lat, double lng) async {
-    final String url =
-        'https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lng&key=$_apiKey';
+    final String url = '$mapUrl/geocode/json?latlng=$lat,$lng&key=$_apiKey';
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -233,7 +233,7 @@ class MapsController extends GetxController {
     isLoading.value = true;
     _incrementMiss();
     final String request =
-        'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&key=$_apiKey&sessiontoken=$_sessionToken';
+        '$mapUrl/place/autocomplete/json?input=$input&key=$_apiKey&sessiontoken=$_sessionToken';
 
     try {
       final response = await http.get(Uri.parse(request));
@@ -266,6 +266,7 @@ class MapsController extends GetxController {
   void _useCachedPredictions(String cachedJson) {
     _incrementHit();
     predictions.value = _parsePredictions(json.decode(cachedJson) as List);
+    update();
     isLoading.value = false;
   }
 

@@ -220,7 +220,7 @@ class DeliveryModel {
   final String publicId;
   final Status status;
   final ServiceType serviceType;
-  final VehicleType vehicleType;
+  final VehicleType? vehicleType;
   final String pickupAddress;
   final String dropoffAddress;
   final DateTime? scheduledAt;
@@ -240,7 +240,7 @@ class DeliveryModel {
     required this.publicId,
     required this.status,
     required this.serviceType,
-    required this.vehicleType,
+    this.vehicleType,
     required this.pickupAddress,
     required this.dropoffAddress,
     this.scheduledAt,
@@ -262,7 +262,9 @@ class DeliveryModel {
       publicId: json['public_id'],
       status: StatusHelper.fromJson(json['status']),
       serviceType: ServiceTypeHelper.fromJson(json['service_type']),
-      vehicleType: VehicleTypeHelper.fromJson(json['vehicle_type']),
+      vehicleType: (json['vehicle_type'] == null || json['vehicle_type'] == '')
+          ? null
+          : VehicleTypeHelper.fromJson(json['vehicle_type']),
       pickupAddress: json['pickup_address'],
       dropoffAddress: json['dropoff_address'],
       scheduledAt: json['scheduled_at'] != null
@@ -287,7 +289,7 @@ class DeliveryModel {
       'public_id': publicId,
       'status': StatusHelper.toJson(status),
       'service_type': ServiceTypeHelper.toJson(serviceType),
-      'vehicle_type': VehicleTypeHelper.toJson(vehicleType),
+      'vehicle_type': vehicleType == null ? null : VehicleTypeHelper.toJson(vehicleType!),
       'pickup_address': pickupAddress,
       'dropoff_address': dropoffAddress,
       'scheduled_at': scheduledAt?.toIso8601String(),
