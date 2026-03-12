@@ -8,7 +8,7 @@ import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/utils/custom_svg.dart';
 import 'package:template/views/base/custom_button.dart';
-import 'package:template/views/base/order_widget.dart';
+import 'package:template/views/base/driver_order_widget.dart';
 
 class DriverHome extends StatefulWidget {
   const DriverHome({super.key});
@@ -16,11 +16,11 @@ class DriverHome extends StatefulWidget {
   @override
   State<DriverHome> createState() => _DriverHomeState();
 }
+
 class _DriverHomeState extends State<DriverHome> {
   final controller = Get.find<DriverDeliveryController>();
   final mapsController = Get.find<MapsController>();
   int state = 0;
-  bool showingBottomCard = false;
   bool runningTrip = false;
 
   @override
@@ -60,7 +60,8 @@ class _DriverHomeState extends State<DriverHome> {
                 zoom: 17,
               ),
             ),
-            if (controller.isOnline.value && showingBottomCard)
+            if (controller.isOnline.value &&
+                controller.currentDelivery.value != null)
               Positioned.fill(
                 child: Container(color: Colors.black.withValues(alpha: 0.22)),
               ),
@@ -113,90 +114,22 @@ class _DriverHomeState extends State<DriverHome> {
                   ),
                 ),
               ),
-            if (controller.isOnline.value && !showingBottomCard && !runningTrip)
+            if (controller.isOnline.value &&
+                controller.currentDelivery.value == null &&
+                !runningTrip)
               IgnorePointer(
                 ignoring: true,
-                child: Center(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.translucent,
-                    onTap: () {
-                      setState(() {
-                        showingBottomCard = true;
-                      });
-                    },
-                    child: Lottie.asset("assets/lottie/ripple.json"),
-                  ),
-                ),
+                child: Center(child: Lottie.asset("assets/lottie/ripple.json")),
               ),
-            if (controller.isOnline.value && (showingBottomCard || runningTrip))
+            if (controller.isOnline.value &&
+                (controller.currentDelivery.value != null || runningTrip))
               AnimatedPositioned(
                 duration: Duration(milliseconds: 300),
                 bottom: runningTrip ? null : 30,
                 top: runningTrip ? 24 : null,
                 left: 16,
                 right: 16,
-                child: [
-                  OrderWidget(
-                    showPersonalInfo: false,
-                    showVehicleInfo: false,
-                    showPriceAbove: true,
-                    showPriceBelow: false,
-                    showTripDetails: true,
-
-                    primaryButtonText: "Accept",
-                    primaryAction: () {
-                      setState(() {
-                        state++;
-                      });
-                    },
-                    secondaryButtonText: "Decline",
-                    secondaryAction: () {},
-                  ),
-                  OrderWidget(
-                    showPersonalInfo: true,
-                    showVehicleInfo: false,
-                    showTripDetails: false,
-                    showTime: false,
-                    showPriceBelow: false,
-
-                    primaryButtonText: "Navigate",
-                    primaryButtonIcon: "tracking",
-                    primaryAction: () {
-                      setState(() {
-                        showingBottomCard = false;
-                        runningTrip = true;
-                        state++;
-                      });
-                    },
-                    secondaryButtonText: "Cancel Delivery",
-                    secondaryButtonIcon: "close",
-                    secondaryAction: () {
-                      setState(() {
-                        state--;
-                      });
-                    },
-                  ),
-                  OrderWidget(
-                    showPersonalInfo: true,
-                    showVehicleInfo: false,
-                    showTripDetails: false,
-                    showTime: false,
-                    showPriceBelow: false,
-                    isExpandable: true,
-
-                    primaryButtonText: "Arive at Pickup",
-                    primaryAction: () {},
-                    secondaryButtonText: "Cancel Delivery",
-                    secondaryButtonIcon: "close",
-                    secondaryAction: () {
-                      setState(() {
-                        showingBottomCard = true;
-                        runningTrip = false;
-                        state--;
-                      });
-                    },
-                  ),
-                ][state],
+                child: DriverOrderWidget(delivery: controller.currentDelivery.value!),
               ),
           ],
         ),

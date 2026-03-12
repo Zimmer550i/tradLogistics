@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lottie/lottie.dart';
+import 'package:template/controllers/user_delivery_controller.dart';
 import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/views/base/custom_app_bar.dart';
@@ -15,11 +17,16 @@ class UserMap extends StatefulWidget {
 }
 
 class _UserMapState extends State<UserMap> {
+  final controller = Get.find<UserDeliveryController>();
+
   Widget? deliveryInformation;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((val) {
+      controller.startSearching();
+    });
     deliveryInformation = findingDriver();
   }
 

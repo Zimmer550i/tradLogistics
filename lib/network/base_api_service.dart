@@ -235,13 +235,10 @@ Future<dynamic> multipart(
   }
 
   if (response.statusCode >= 200 && response.statusCode < 300) {
-
-    if (body is Map<String, dynamic>) {
+    if (body is Map<String, dynamic> || body is List) {
       return body;
-    } else {
-      throw ApiException(message: "Unexpected response format");
     }
-
+    throw ApiException(message: "Unexpected response format");
   }
 
   throw ApiException.fromStatusCode(response.statusCode, body);

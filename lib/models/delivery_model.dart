@@ -20,20 +20,9 @@ enum ServiceType {
   van,
 }
 
-enum VehicleType {
-  car,
-  bike,
-  van,
-  wrecker,
-  removalTruck,
-}
+enum VehicleType { car, bike, van, wrecker, removalTruck }
 
-enum PaymentMethod {
-  cash,
-  stripe,
-  lynk,
-  jnMoney,
-}
+enum PaymentMethod { cash, stripe, lynk, jnMoney }
 
 class StatusHelper {
   static Status fromJson(String json) {
@@ -183,21 +172,21 @@ class PaymentMethodHelper {
   }
 }
 
-class Customer {
+class User {
   final int userId;
   final String name;
   final String phone;
   final String profileImage;
 
-  Customer({
+  User({
     required this.userId,
     required this.name,
     required this.phone,
     required this.profileImage,
   });
 
-  factory Customer.fromJson(Map<String, dynamic> json) {
-    return Customer(
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
       userId: json['user_id'],
       name: json['name'],
       phone: json['phone'],
@@ -218,20 +207,34 @@ class Customer {
 class DeliveryModel {
   final int id;
   final String publicId;
-  final Status status;
+  Status status;
   final ServiceType serviceType;
   final VehicleType? vehicleType;
   final String pickupAddress;
+  final double? pickupLat;
+  final double? pickupLng;
   final String dropoffAddress;
+  final double? dropoffLat;
+  final double? dropoffLng;
+  final double? weight;
+  final String? description;
+  final String? specialInstruction;
+  final String? sensitivityLevel;
+  final bool? fragile;
   final DateTime? scheduledAt;
   final PaymentMethod paymentMethod;
   final String price;
-  final Customer customer;
-  final String? driver;
+  final User customer;
+  final User? driver;
   final Map<String, dynamic> priceBreakdown;
   final Map<String, dynamic> serviceData;
+  final String? verificationPin;
   final double? driverLastLat;
   final double? driverLastLng;
+  final DateTime? driverLastUpdatedAt;
+  final DateTime? estimateArrivalTime;
+  final bool? isDeleted;
+  final DateTime? deletedAt;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -242,7 +245,16 @@ class DeliveryModel {
     required this.serviceType,
     this.vehicleType,
     required this.pickupAddress,
+    this.pickupLat,
+    this.pickupLng,
     required this.dropoffAddress,
+    this.dropoffLat,
+    this.dropoffLng,
+    this.weight,
+    this.description,
+    this.specialInstruction,
+    this.sensitivityLevel,
+    this.fragile,
     this.scheduledAt,
     required this.paymentMethod,
     required this.price,
@@ -250,8 +262,13 @@ class DeliveryModel {
     this.driver,
     required this.priceBreakdown,
     required this.serviceData,
+    this.verificationPin,
     this.driverLastLat,
     this.driverLastLng,
+    this.driverLastUpdatedAt,
+    this.estimateArrivalTime,
+    this.isDeleted,
+    this.deletedAt,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -266,18 +283,52 @@ class DeliveryModel {
           ? null
           : VehicleTypeHelper.fromJson(json['vehicle_type']),
       pickupAddress: json['pickup_address'],
+      pickupLat: json['pickup_lat'] != null
+          ? (json['pickup_lat'] as num).toDouble()
+          : null,
+      pickupLng: json['pickup_lng'] != null
+          ? (json['pickup_lng'] as num).toDouble()
+          : null,
       dropoffAddress: json['dropoff_address'],
+      dropoffLat: json['dropoff_lat'] != null
+          ? (json['dropoff_lat'] as num).toDouble()
+          : null,
+      dropoffLng: json['dropoff_lng'] != null
+          ? (json['dropoff_lng'] as num).toDouble()
+          : null,
+      weight: json['weight'] != null
+          ? (json['weight'] as num).toDouble()
+          : null,
+      description: json['description'],
+      specialInstruction: json['special_instruction'],
+      sensitivityLevel: json['sensitivity_level'],
+      fragile: json['fragile'],
       scheduledAt: json['scheduled_at'] != null
           ? DateTime.parse(json['scheduled_at'])
           : null,
       paymentMethod: PaymentMethodHelper.fromJson(json['payment_method']),
       price: json['price'],
-      customer: Customer.fromJson(json['customer']),
-      driver: json['driver'],
+      customer: User.fromJson(json['customer']),
+      driver: json['driver'] != null ? User.fromJson(json['driver']) : null,
       priceBreakdown: json['price_breakdown'] ?? {},
       serviceData: json['service_data'] ?? {},
-      driverLastLat: json['driver_last_lat'],
-      driverLastLng: json['driver_last_lng'],
+      verificationPin: json['verification_pin'],
+      driverLastLat: json['driver_last_lat'] != null
+          ? (json['driver_last_lat'] as num).toDouble()
+          : null,
+      driverLastLng: json['driver_last_lng'] != null
+          ? (json['driver_last_lng'] as num).toDouble()
+          : null,
+      driverLastUpdatedAt: json['driver_last_updated_at'] != null
+          ? DateTime.parse(json['driver_last_updated_at'])
+          : null,
+      estimateArrivalTime: json['estimate_arrival_time'] != null
+          ? DateTime.parse(json['estimate_arrival_time'])
+          : null,
+      isDeleted: json['is_deleted'],
+      deletedAt: json['deleted_at'] != null
+          ? DateTime.parse(json['deleted_at'])
+          : null,
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
     );
@@ -289,18 +340,34 @@ class DeliveryModel {
       'public_id': publicId,
       'status': StatusHelper.toJson(status),
       'service_type': ServiceTypeHelper.toJson(serviceType),
-      'vehicle_type': vehicleType == null ? null : VehicleTypeHelper.toJson(vehicleType!),
+      'vehicle_type': vehicleType == null
+          ? null
+          : VehicleTypeHelper.toJson(vehicleType!),
       'pickup_address': pickupAddress,
+      'pickup_lat': pickupLat,
+      'pickup_lng': pickupLng,
       'dropoff_address': dropoffAddress,
+      'dropoff_lat': dropoffLat,
+      'dropoff_lng': dropoffLng,
+      'weight': weight,
+      'description': description,
+      'special_instruction': specialInstruction,
+      'sensitivity_level': sensitivityLevel,
+      'fragile': fragile,
       'scheduled_at': scheduledAt?.toIso8601String(),
       'payment_method': PaymentMethodHelper.toJson(paymentMethod),
       'price': price,
       'customer': customer.toJson(),
-      'driver': driver,
+      'driver': driver?.toJson(),
       'price_breakdown': priceBreakdown,
       'service_data': serviceData,
+      'verification_pin': verificationPin,
       'driver_last_lat': driverLastLat,
       'driver_last_lng': driverLastLng,
+      'driver_last_updated_at': driverLastUpdatedAt?.toIso8601String(),
+      'estimate_arrival_time': estimateArrivalTime?.toIso8601String(),
+      'is_deleted': isDeleted,
+      'deleted_at': deletedAt?.toIso8601String(),
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };

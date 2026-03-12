@@ -12,6 +12,7 @@ class UserDeliveryController extends BaseController {
   final Rx<DeliveryModel?> currentDelivery = Rx(null);
 
   DeliveryModel get data => currentDelivery.value!;
+  
   bool get isOngoing {
     final delivery = currentDelivery.value;
     if (delivery == null) {
@@ -54,18 +55,28 @@ class UserDeliveryController extends BaseController {
     }, showOverlay: true);
   }
 
-  Future<DeliveryModel?> cancelDelivery() async {
+  Future<void> updateDelivery() async {
     final delivery = currentDelivery.value;
     if (delivery == null) {
-      return null;
+      return;
+    }
+    await apiCall(() async {
+      final endpoint = '${ApiEndpoints.userDeliveries}${delivery.id}/';
+      final data = await _api.get(endpoint);
+      currentDelivery.value = DeliveryModel.fromJson(data);
+    });
+  }
+
+  Future<void> cancelDelivery() async {
+    final delivery = currentDelivery.value;
+    if (delivery == null) {
+      return ;
     }
     return apiCall(() async {
       final endpoint =
           '${ApiEndpoints.userDeliveries}${delivery.id}/cancel/';
-      final data = await _api.post(endpoint);
-      final updated = DeliveryModel.fromJson(data['data']);
-      currentDelivery.value = updated;
-      return updated;
+      await _api.post(endpoint);
+      currentDelivery.value = null;
     }, showOverlay: true);
   }
 }

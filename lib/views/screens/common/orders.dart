@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/views/base/home_bar.dart';
-import 'package:template/views/base/order_widget.dart';
-import 'package:template/views/screens/user/modals/cancel_delivery.dart';
-import 'package:template/views/screens/user/modals/give_review.dart';
 
 class Orders extends StatefulWidget {
   final bool canSeePast;
@@ -97,21 +94,22 @@ class _OrdersState extends State<Orders> {
                 spacing: 16,
                 children: [
                   const SizedBox(),
-                  for (int i = 0; i < 10; i++)
-                    index == 1
-                        ? OrderWidget(
-                            primaryButtonText: "Give Review",
-                            primaryAction: () {
-                              giveReview(context);
-                            },
-                          )
-                        : OrderWidget(
-                            primaryButtonText: "Start Tracking",
-                            primaryButtonIcon: "tracking",
-                            secondaryButtonText: "Cancel Delivery",
-                            secondaryButtonIcon: "close",
-                            secondaryAction: () => cancelDelivery(context),
-                          ),
+                  // TODO: Complete these OrderWidget
+                  // for (int i = 0; i < 10; i++)
+                  //   index == 1
+                  //       ? OrderWidget(
+                  //           primaryButtonText: "Give Review",
+                  //           primaryAction: () {
+                  //             giveReview(context);
+                  //           },
+                  //         )
+                  //       : OrderWidget(
+                  //           primaryButtonText: "Start Tracking",
+                  //           primaryButtonIcon: "tracking",
+                  //           secondaryButtonText: "Cancel Delivery",
+                  //           secondaryButtonIcon: "close",
+                  //           secondaryAction: () => cancelDelivery(context),
+                  //         ),
                   const SizedBox(height: 16),
                 ],
               ),

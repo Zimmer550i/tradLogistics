@@ -26,6 +26,11 @@ class ApiEndpoints {
 
   // Deliveries
   static const String userDeliveries = '/order/deliveries/';
+  static const String driverAvailableDeliveries =
+      '/order/driver/deliveries/available/';
+  static const String driverDeliveries = '/order/driver/deliveries/';
+  static String driverDeliveryAccept(int id) =>
+      '/order/driver/deliveries/$id/accept/';
 
   // Products
   static const String products = '/products/';
