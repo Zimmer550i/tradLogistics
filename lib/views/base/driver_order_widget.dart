@@ -15,22 +15,13 @@ import 'package:url_launcher/url_launcher.dart';
 class DriverOrderWidget extends StatefulWidget {
   final DeliveryModel delivery;
   final bool isExpandable;
+  final bool showAdditionalInfo;
+  final bool isUser;
   const DriverOrderWidget({
     super.key,
     required this.delivery,
-
-    // this.primaryButtonText,
-    // this.secondaryButtonText,
-    // this.primaryAction,
-    // this.secondaryAction,
-    // this.primaryButtonIcon,
-    // this.secondaryButtonIcon,
-    // this.showPersonalInfo = true,
-    // this.showVehicleInfo = true,
-    // this.showTime = true,
-    // this.showTripDetails = false,
-    // this.showPriceAbove = false,
-    // this.showPriceBelow = true,
+    this.isUser = false,
+    this.showAdditionalInfo = false,
     this.isExpandable = false,
   });
 
@@ -293,9 +284,8 @@ class _OrderWidgetState extends State<DriverOrderWidget> {
                 padding: 0,
                 leading: "assets/icons/navigate.svg",
                 onTap: () {
-                  // TODO: set 
+                  // TODO: set
                   // final map = Get.find<MapsController>();
-                  
                 },
                 text: "Navigate",
               ),
@@ -322,7 +312,7 @@ class _OrderWidgetState extends State<DriverOrderWidget> {
           ],
         );
       default:
-        return Text("No Action available");
+        return Text(widget.delivery.status.toString());
     }
   }
 }

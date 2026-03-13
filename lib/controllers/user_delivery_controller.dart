@@ -10,9 +10,11 @@ class UserDeliveryController extends BaseController {
   final user = Get.find<UserProfileController>();
 
   final Rx<DeliveryModel?> currentDelivery = Rx(null);
+  final RxList<DeliveryModel> ongoingDeliveries = <DeliveryModel>[].obs;
+  final RxList<DeliveryModel> pastDeliveries = <DeliveryModel>[].obs;
 
   DeliveryModel get data => currentDelivery.value!;
-  
+
   bool get isOngoing {
     final delivery = currentDelivery.value;
     if (delivery == null) {
@@ -70,13 +72,39 @@ class UserDeliveryController extends BaseController {
   Future<void> cancelDelivery() async {
     final delivery = currentDelivery.value;
     if (delivery == null) {
-      return ;
+      return;
     }
     return apiCall(() async {
-      final endpoint =
-          '${ApiEndpoints.userDeliveries}${delivery.id}/cancel/';
+      final endpoint = '${ApiEndpoints.userDeliveries}${delivery.id}/cancel/';
       await _api.post(endpoint);
       currentDelivery.value = null;
     }, showOverlay: true);
+  }
+
+  Future<void> fetchOngoingDeliveries() async {
+    await apiCall(() async {
+      final data = await _api.get('${ApiEndpoints.userDeliveries}ongoing/');
+      ongoingDeliveries.assignAll(_parseDeliveryList(data));
+    });
+  }
+
+  Future<void> fetchPastDeliveries() async {
+    await apiCall(() async {
+      final data = await _api.get('${ApiEndpoints.userDeliveries}past/');
+      pastDeliveries.assignAll(_parseDeliveryList(data));
+    });
+  }
+
+  List<DeliveryModel> _parseDeliveryList(dynamic data) {
+    final payload = data is Map<String, dynamic> && data['data'] is List
+        ? data['data']
+        : data;
+    if (payload is! List) {
+      return const <DeliveryModel>[];
+    }
+    return payload
+        .whereType<Map<String, dynamic>>()
+        .map(DeliveryModel.fromJson)
+        .toList();
   }
 }

@@ -1,18 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:template/controllers/driver_delivery_controller.dart';
+import 'package:template/controllers/user_delivery_controller.dart';
 import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
+import 'package:template/views/base/custom_loading.dart';
+import 'package:template/views/base/driver_order_widget.dart';
 import 'package:template/views/base/home_bar.dart';
 
 class Orders extends StatefulWidget {
-  final bool canSeePast;
-  const Orders({super.key, this.canSeePast = true});
+  final bool isUser;
+  const Orders({super.key, this.isUser = true});
 
   @override
   State<Orders> createState() => _OrdersState();
 }
 
 class _OrdersState extends State<Orders> {
+  final userController = Get.find<UserDeliveryController>();
+  final driverController = Get.find<DriverDeliveryController>();
+
   int index = 0;
+
+  fetchData() {
+    if (index == 0) {
+      if (widget.isUser) {
+        userController.fetchOngoingDeliveries();
+      } else {
+        driverController.fetchOngoingDeliveries();
+      }
+    } else {
+      userController.fetchPastDeliveries();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +41,7 @@ class _OrdersState extends State<Orders> {
       body: Column(
         children: [
           const SizedBox(height: 16),
-          if (widget.canSeePast)
+          if (widget.isUser)
             Row(
               spacing: 16,
               children: [
@@ -32,6 +52,7 @@ class _OrdersState extends State<Orders> {
                       setState(() {
                         index = 0;
                       });
+                      fetchData();
                     },
                     child: AnimatedContainer(
                       duration: Duration(milliseconds: 100),
@@ -61,6 +82,7 @@ class _OrdersState extends State<Orders> {
                       setState(() {
                         index = 1;
                       });
+                      fetchData();
                     },
                     child: AnimatedContainer(
                       duration: Duration(milliseconds: 100),
@@ -90,33 +112,36 @@ class _OrdersState extends State<Orders> {
           Expanded(
             child: SingleChildScrollView(
               padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                spacing: 16,
-                children: [
-                  const SizedBox(),
-                  // TODO: Complete these OrderWidget
-                  // for (int i = 0; i < 10; i++)
-                  //   index == 1
-                  //       ? OrderWidget(
-                  //           primaryButtonText: "Give Review",
-                  //           primaryAction: () {
-                  //             giveReview(context);
-                  //           },
-                  //         )
-                  //       : OrderWidget(
-                  //           primaryButtonText: "Start Tracking",
-                  //           primaryButtonIcon: "tracking",
-                  //           secondaryButtonText: "Cancel Delivery",
-                  //           secondaryButtonIcon: "close",
-                  //           secondaryAction: () => cancelDelivery(context),
-                  //         ),
-                  const SizedBox(height: 16),
-                ],
+              child: Obx(
+                () => Column(
+                  spacing: 16,
+                  children: [
+                    const SizedBox(),
+                    if (userController.isLoading.value ||
+                        driverController.isLoading.value)
+                      CustomLoading(),
+                    for (var i in getList())
+                      DriverOrderWidget(delivery: i, showAdditionalInfo: true),
+                    const SizedBox(height: 16),
+                  ],
+                ),
               ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  getList() {
+    if (index == 0) {
+      if (widget.isUser) {
+        return userController.ongoingDeliveries;
+      } else {
+        return driverController.ongoingDeliveries;
+      }
+    } else {
+      return userController.pastDeliveries;
+    }
   }
 }

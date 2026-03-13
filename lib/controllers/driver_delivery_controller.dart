@@ -13,6 +13,7 @@ class DriverDeliveryController extends BaseController {
 
   RxBool isOnline = RxBool(false);
   final Rx<DeliveryModel?> currentDelivery = Rx(null);
+  final RxList<DeliveryModel> ongoingDeliveries = <DeliveryModel>[].obs;
   Timer? _onlinePoller;
 
   DeliveryModel get data => currentDelivery.value!;
@@ -109,5 +110,25 @@ class DriverDeliveryController extends BaseController {
 
   void declineDelivery() async {
     currentDelivery.value = null;
+  }
+
+  Future<void> fetchOngoingDeliveries() async {
+    await apiCall(() async {
+      final data = await _api.get(ApiEndpoints.ongoingDeliveries);
+      ongoingDeliveries.assignAll(_parseDeliveryList(data));
+    });
+  }
+
+  List<DeliveryModel> _parseDeliveryList(dynamic data) {
+    final payload = data is Map<String, dynamic> && data['data'] is List
+        ? data['data']
+        : data;
+    if (payload is! List) {
+      return const <DeliveryModel>[];
+    }
+    return payload
+        .whereType<Map<String, dynamic>>()
+        .map(DeliveryModel.fromJson)
+        .toList();
   }
 }

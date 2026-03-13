@@ -13,7 +13,8 @@ class ErrorHandler {
   static String _extractMessage(dynamic error) {
     if (error is ApiException) return error.message;
     if (error is String) return error;
-    return 'An unexpected error occurred';
+    return error.toString();
+    // return 'An unexpected error occurred';
   }
 
   static void showSnackbar(String message, {bool isError = true}) {

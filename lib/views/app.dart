@@ -25,7 +25,7 @@ class _AppState extends State<App> {
   ];
   List<Widget> driverPages = [
     DriverHome(),
-    Orders(canSeePast: false),
+    Orders(isUser: false),
     DriverEarnings(),
     Inbox(),
     Account(isUser: false),
