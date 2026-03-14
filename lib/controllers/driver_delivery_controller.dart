@@ -94,13 +94,9 @@ class DriverDeliveryController extends BaseController {
     super.onClose();
   }
 
-  Future<void> acceptDelivery() async {
-    final delivery = currentDelivery.value;
-    if (delivery == null) {
-      return;
-    }
+  Future<void> acceptDelivery(String id) async {
     return apiCall(() async {
-      final endpoint = '${ApiEndpoints.driverDeliveries}${delivery.id}/accept/';
+      final endpoint = '${ApiEndpoints.driverDeliveries}$id/accept/';
       await _api.post(endpoint);
       // final updated = DeliveryModel.fromJson(data['data']);
       currentDelivery.value!.status = Status.driverAssigned;

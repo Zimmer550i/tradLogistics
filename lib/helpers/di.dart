@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:template/controllers/auth_controller.dart';
+import 'package:template/controllers/chat_controller.dart';
 import 'package:template/controllers/driver_delivery_controller.dart';
 import 'package:template/controllers/loading_controller.dart';
 import 'package:template/controllers/maps_controller.dart';
@@ -29,6 +30,7 @@ Future<Map<String, Map<String, String>>> init() async {
   Get.put(MapsController());
   Get.put(UserDeliveryController());
   Get.put(DriverDeliveryController());
+  Get.put(ChatController());
 
   Get.lazyPut(() => ThemeController(sharedPreferences: Get.find()));
   Get.lazyPut(() => LocalizationController(sharedPreferences: Get.find()));

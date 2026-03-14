@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:template/config/environment.dart';
+import 'package:template/controllers/chat_controller.dart';
 import 'package:template/controllers/driver_delivery_controller.dart';
 import 'package:template/error/error_handler.dart';
 import 'package:template/models/delivery_model.dart';
@@ -10,6 +11,7 @@ import 'package:template/utils/app_texts.dart';
 import 'package:template/utils/custom_svg.dart';
 import 'package:template/views/base/custom_button.dart';
 import 'package:template/views/base/profile_picture.dart';
+import 'package:template/views/screens/common/chat.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DriverOrderWidget extends StatefulWidget {
@@ -157,6 +159,7 @@ class _OrderWidgetState extends State<DriverOrderWidget> {
                               ),
                             ],
                           ),
+                        Text(widget.delivery.status.toString()),
                         getActionButtons(),
                       ],
                     )
@@ -182,23 +185,23 @@ class _OrderWidgetState extends State<DriverOrderWidget> {
   }
 
   Widget profileInfo() {
+    final otherParticipant = widget.isUser
+        ? widget.delivery.driver
+        : widget.delivery.customer;
+
     return Row(
       children: [
         ProfilePicture(
-          image:
-              EnvironmentConfig.imageUrl +
-              widget.delivery.customer.profileImage,
+          image: EnvironmentConfig.imageUrl + otherParticipant!.profileImage,
           size: 52,
         ),
         const SizedBox(width: 12),
-        Expanded(
-          child: Text(widget.delivery.customer.name, style: AppTexts.txls),
-        ),
+        Expanded(child: Text(otherParticipant.name, style: AppTexts.txls)),
         GestureDetector(
           onTap: () async {
             final Uri phoneUri = Uri(
               scheme: 'tel',
-              path: widget.delivery.customer.phone,
+              path: otherParticipant.phone,
             );
 
             if (await canLaunchUrl(phoneUri)) {
@@ -225,18 +228,28 @@ class _OrderWidgetState extends State<DriverOrderWidget> {
         ),
         const SizedBox(width: 12),
         // TODO: Connect inbox
-        Container(
-          height: 40,
-          width: 40,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: AppColors.neutral.shade100,
-          ),
-          child: Center(
-            child: CustomSvg(
-              asset: "assets/icons/mail.svg",
-              color: AppColors.neutral.shade900,
-              size: 20,
+        GestureDetector(
+          onTap: () async {
+            final roomId = await Get.find<ChatController>().createConversation(
+              userId: otherParticipant.userId,
+              deliveryId: widget.delivery.id,
+            );
+            Get.find<ChatController>().roomId.value = roomId;
+            Get.to(() => Chat());
+          },
+          child: Container(
+            height: 40,
+            width: 40,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.neutral.shade100,
+            ),
+            child: Center(
+              child: CustomSvg(
+                asset: "assets/icons/mail.svg",
+                color: AppColors.neutral.shade900,
+                size: 20,
+              ),
             ),
           ),
         ),
@@ -305,7 +318,8 @@ class _OrderWidgetState extends State<DriverOrderWidget> {
             ),
             Expanded(
               child: CustomButton(
-                onTap: () => controller.acceptDelivery(),
+                onTap: () =>
+                    controller.acceptDelivery(widget.delivery.id.toString()),
                 text: "Accept",
               ),
             ),

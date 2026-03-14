@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:template/config/environment.dart';
+import 'package:template/controllers/chat_controller.dart';
+import 'package:template/controllers/user_profile_controller.dart';
 import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/utils/custom_svg.dart';
@@ -6,25 +10,34 @@ import 'package:template/views/base/profile_picture.dart';
 
 class Chat extends StatefulWidget {
   final bool isSupport;
-  const Chat({super.key, this.isSupport = false});
+  final String? roomId;
+  const Chat({super.key, this.roomId, this.isSupport = false});
 
   @override
   State<Chat> createState() => _ChatState();
 }
 
 class _ChatState extends State<Chat> {
+  final controller = Get.find<ChatController>();
   List<Widget> messages = [];
   FocusNode focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
+    if (widget.roomId != null) {
+      controller.roomId.value = widget.roomId!;
+    }
+    controller.connectSocket();
+    // controller.fetchChatDetails();
     getMessages();
   }
 
   @override
   Widget build(BuildContext context) {
     getMessages();
+    final reciever = getReciever();
+
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
@@ -35,7 +48,7 @@ class _ChatState extends State<Chat> {
           children: [
             if (!widget.isSupport)
               ProfilePicture(
-                image: "https://thispersondoesnotexist.com",
+                image: EnvironmentConfig.imageUrl + reciever,
                 size: 40,
               ),
             const SizedBox(width: 12),
@@ -280,5 +293,24 @@ class _ChatState extends State<Chat> {
         ),
       ),
     );
+  }
+
+  getReciever() {
+    final currentUserId =
+        Get.find<UserProfileController>().userProfile.value?.userId;
+    if (currentUserId != null) {
+      for (final participant in controller.participants) {
+        final id = participant['user_id'];
+        if (id is int && id != currentUserId) {
+          return participant;
+        }
+        if (id is String) {
+          final parsed = int.tryParse(id);
+          if (parsed != null && parsed != currentUserId) {
+            return participant;
+          }
+        }
+      }
+    }
   }
 }

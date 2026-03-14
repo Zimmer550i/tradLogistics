@@ -231,7 +231,7 @@ class AuthController extends BaseController {
       var signInAccount = await signIn.signIn();
       if (signInAccount != null) {
         final response = await _api.post(
-          "/api/v1/auth/google_login/",
+          "/api/v1/accounts/google_login/",
           body: {
             "email": signInAccount.email,
             "picture": signInAccount.photoUrl,

@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:template/config/environment.dart';
+import 'package:template/controllers/chat_controller.dart';
 import 'package:template/controllers/driver_delivery_controller.dart';
+import 'package:template/controllers/user_profile_controller.dart';
 import 'package:template/error/error_handler.dart';
 import 'package:template/models/delivery_model.dart';
 import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/utils/custom_svg.dart';
 import 'package:template/views/base/profile_picture.dart';
+import 'package:template/views/screens/common/chat.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class OrderWidget extends StatefulWidget {
@@ -253,18 +256,28 @@ class _OrderWidgetState extends State<OrderWidget> {
         ),
         const SizedBox(width: 12),
         // TODO: Connect inbox
-        Container(
-          height: 40,
-          width: 40,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: AppColors.neutral.shade100,
-          ),
-          child: Center(
-            child: CustomSvg(
-              asset: "assets/icons/mail.svg",
-              color: AppColors.neutral.shade900,
-              size: 20,
+        GestureDetector(
+          onTap: () {
+            Get.find<ChatController>().createConversation(
+              userId: Get.find<UserProfileController>().data.userId,
+              deliveryId: widget.delivery.customer.userId,
+            ).then((val){
+              Get.to(()=> Chat());
+            });
+          },
+          child: Container(
+            height: 40,
+            width: 40,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.neutral.shade100,
+            ),
+            child: Center(
+              child: CustomSvg(
+                asset: "assets/icons/mail.svg",
+                color: AppColors.neutral.shade900,
+                size: 20,
+              ),
             ),
           ),
         ),
@@ -291,10 +304,10 @@ class _OrderWidgetState extends State<OrderWidget> {
       ],
     );
   }
-  
+
   // Widget getActionButtons() {
   //   switch(widget.delivery.status){
-      
+
   //   }
   // }
 }

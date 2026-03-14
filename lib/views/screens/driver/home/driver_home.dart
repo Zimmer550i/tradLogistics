@@ -129,7 +129,11 @@ class _DriverHomeState extends State<DriverHome> {
                 top: runningTrip ? 24 : null,
                 left: 16,
                 right: 16,
-                child: DriverOrderWidget(delivery: controller.currentDelivery.value!),
+                child: Obx(
+                  () => DriverOrderWidget(
+                    delivery: controller.currentDelivery.value!,
+                  ),
+                ),
               ),
           ],
         ),

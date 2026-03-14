@@ -22,6 +22,12 @@ class _OrdersState extends State<Orders> {
 
   int index = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
   fetchData() {
     if (index == 0) {
       if (widget.isUser) {
@@ -120,6 +126,9 @@ class _OrdersState extends State<Orders> {
                     if (userController.isLoading.value ||
                         driverController.isLoading.value)
                       CustomLoading(),
+                    // Using Driver Widget
+                    // Because it matches best with the Design
+                    // Dumb designer
                     for (var i in getList())
                       DriverOrderWidget(delivery: i, showAdditionalInfo: true),
                     const SizedBox(height: 16),
