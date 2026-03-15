@@ -131,7 +131,9 @@ class _OrderWidgetState extends State<DriverOrderWidget> {
                       //     child: Text("\$120", style: AppTexts.dxsm),
                       //   ),
                       // TODO: Calculate these
-                      if (widget.delivery.status == Status.searching)
+                      if (widget.delivery.status == Status.searching &&
+                          widget.delivery.pickupLat != null &&
+                          widget.delivery.pickupLng != null)
                         Column(
                           spacing: 12,
                           children: [
@@ -143,7 +145,7 @@ class _OrderWidgetState extends State<DriverOrderWidget> {
                                   style: AppTexts.tmdm,
                                 ),
                                 Text(
-                                  "${mapController.getDistance(LatLng(widget.delivery.pickupLat!, widget.delivery.pickupLng!), LatLng(widget.delivery.dropoffLat!, widget.delivery.dropoffLng!)) / 1000} km away",
+                                  "${(mapController.getDistance(LatLng(widget.delivery.pickupLat!, widget.delivery.pickupLng!), LatLng(widget.delivery.dropoffLat!, widget.delivery.dropoffLng!)) / 1000).toPrecision(2)} km away",
                                   style: AppTexts.tmdr,
                                 ),
                               ],

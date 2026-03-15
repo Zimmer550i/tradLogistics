@@ -1,4 +1,3 @@
-import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:template/controllers/base_controller.dart';
 import 'package:template/controllers/user_profile_controller.dart';
@@ -55,18 +54,16 @@ class UserDeliveryController extends BaseController {
     }, showOverlay: true);
   }
 
-  Future<DeliveryModel?> startSearching() async {
+  Future<void> startSearching() async {
     final delivery = currentDelivery.value;
     if (delivery == null) {
-      return null;
+      return;
     }
     return apiCall(() async {
       final endpoint =
           '${ApiEndpoints.userDeliveries.replaceAll("user/", "")}${delivery.id}/search-driver/';
-      final data = await _api.post(endpoint);
-      final updated = DeliveryModel.fromJson(data['data']);
-      currentDelivery.value = updated;
-      return updated;
+      await _api.post(endpoint);
+      currentDelivery.value?.status = Status.searching;
     }, showOverlay: true);
   }
 

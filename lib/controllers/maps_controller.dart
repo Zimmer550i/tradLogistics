@@ -1,29 +1,36 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart' as http;
 
 class MapsController extends GetxController {
-  var isLoading = false.obs;
+  // ─── Public state ─────────────────────────────────────────────────────────
+  final isLoading = false.obs;
   final Rxn<LatLng> currentPosition = Rxn<LatLng>();
-  final RxBool locationPermissionGranted = false.obs;
+  final locationPermissionGranted = false.obs;
   final Rxn<LatLng> pickupLocation = Rxn<LatLng>();
   final Rxn<LatLng> dropoffLocation = Rxn<LatLng>();
   final RxnString pickupAddress = RxnString();
   final RxnString dropoffAddress = RxnString();
-  final RxBool selectingPickup = true.obs;
+  final selectingPickup = true.obs;
   final RxSet<Marker> markers = <Marker>{}.obs;
   final RxSet<Polyline> polylines = <Polyline>{}.obs;
 
-  final String mapUrl = "https://maps.googleapis.com/maps/api";
-  final int cacheDays = 3;
-  GoogleMapController? _mapController;
-  StreamSubscription<Position>? _positionSub;
+  // ─── Config ───────────────────────────────────────────────────────────────
+  final String mapUrl = 'https://maps.googleapis.com/maps/api';
+  final String _apiKey = dotenv.env['GOOGLE_API_KEY'] ?? '';
   static const double _earthRadiusMeters = 6371000.0;
 
+  // ─── Private ──────────────────────────────────────────────────────────────
+  GoogleMapController? _mapController;
+  StreamSubscription<Position>? _positionSub;
 
+  // ─── Lifecycle ────────────────────────────────────────────────────────────
   @override
   void onClose() {
     _positionSub?.cancel();
@@ -31,14 +38,19 @@ class MapsController extends GetxController {
     super.onClose();
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // Public API
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // ─── Map controller ───────────────────────────────────────────────────────
+
   void setMapController(GoogleMapController controller) {
     if (_mapController != controller) {
       _mapController?.dispose();
       _mapController = controller;
     }
-    final position = currentPosition.value;
-    if (position != null) {
-      _mapController?.animateCamera(CameraUpdate.newLatLng(position));
+    if (currentPosition.value != null) {
+      _animateTo(currentPosition.value!);
     }
   }
 
@@ -47,97 +59,81 @@ class MapsController extends GetxController {
     _mapController = null;
   }
 
-  /// Starts high-accuracy location updates intended for navigation.
-  /// Returns immediately if updates are already running or permission is denied.
+  // ─── Location ─────────────────────────────────────────────────────────────
+
+  /// Initialises location with standard accuracy and begins passive updates.
+  Future<void> initLocation() async {
+    if (!await _requestPermission()) return;
+    locationPermissionGranted.value = true;
+    await _fetchCurrentPosition();
+    await _startPositionStream(
+      accuracy: LocationAccuracy.best,
+      distanceFilter: 5,
+    );
+  }
+
+  /// Starts high-accuracy navigation updates.
   Future<void> startNavigation() async {
     if (_positionSub != null) return;
     isLoading.value = true;
 
-    final hasPermission = await _checkPermission();
-    if (!hasPermission || isClosed) {
+    if (!await _requestPermission()) {
       isLoading.value = false;
       return;
     }
 
     locationPermissionGranted.value = true;
-    await _getCurrentLocation();
+    await _fetchCurrentPosition();
 
     if (isClosed) {
       isLoading.value = false;
       return;
     }
 
-    _positionSub =
-        Geolocator.getPositionStream(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.bestForNavigation,
-            distanceFilter: 1,
-          ),
-        ).listen((position) {
-          currentPosition.value = LatLng(position.latitude, position.longitude);
-          _mapController?.animateCamera(
-            CameraUpdate.newLatLng(currentPosition.value!),
-          );
-          if (pickupLocation.value != null && dropoffLocation.value == null) {
-            _refreshRoute();
-          }
-        });
+    await _startPositionStream(
+      accuracy: LocationAccuracy.bestForNavigation,
+      distanceFilter: 1,
+    );
 
     isLoading.value = false;
   }
 
-  /// Stops navigation updates and releases the underlying location stream.
+  /// Stops navigation and releases the location stream.
   Future<void> cancelNavigation() async {
     await stopLocationUpdates();
     isLoading.value = false;
   }
 
-  /// Returns the great-circle distance in meters between two coordinates.
-  double getDistance(LatLng from, LatLng to) {
-    final double dLat = _degToRad(to.latitude - from.latitude);
-    final double dLng = _degToRad(to.longitude - from.longitude);
-    final double lat1 = _degToRad(from.latitude);
-    final double lat2 = _degToRad(to.latitude);
-
-    final double sinDLat = sin(dLat / 2);
-    final double sinDLng = sin(dLng / 2);
-    final double a = sinDLat * sinDLat +
-        sinDLng * sinDLng * cos(lat1) * cos(lat2);
-    final double c = 2 * atan2(sqrt(a), sqrt(1 - a));
-    return _earthRadiusMeters * c;
+  /// Cancels the active position stream subscription.
+  Future<void> stopLocationUpdates() async {
+    await _positionSub?.cancel();
+    _positionSub = null;
   }
 
-  /// Returns the distance in meters between pickup and dropoff locations.
-  /// If either location is missing, returns 0.
-  double getPickupDropoffDistance() {
-    final pickup = pickupLocation.value;
-    final dropoff = dropoffLocation.value;
-    if (pickup == null || dropoff == null) return 0.0;
-    return getDistance(pickup, dropoff);
-  }
+  // ─── Selection mode ───────────────────────────────────────────────────────
 
   void setSelectionMode({required bool pickup}) {
     selectingPickup.value = pickup;
   }
 
   void onMapTap(LatLng position) {
-    if (selectingPickup.value) {
-      setPickupLocation(position);
-    } else {
-      setDropoffLocation(position);
-    }
+    selectingPickup.value
+        ? setPickupLocation(position)
+        : setDropoffLocation(position);
   }
+
+  // ─── Pickup / dropoff ─────────────────────────────────────────────────────
 
   void setPickupLocation(LatLng position, {String? address}) {
     pickupLocation.value = position;
     if (address != null) pickupAddress.value = address;
-    _refreshMapLayers();
+    _onLocationsChanged();
   }
 
   void setDropoffLocation(LatLng position, {String? address}) {
     dropoffLocation.value = position;
     if (address != null) dropoffAddress.value = address;
-    _refreshMapLayers();
+    _onLocationsChanged();
   }
 
   void clearPickupDropoff() {
@@ -149,81 +145,254 @@ class MapsController extends GetxController {
     polylines.clear();
   }
 
-  void _refreshMapLayers() {
-    _refreshMarkers();
-    _refreshRoute();
-    _fitCameraToMarkers();
+  // ─── Distance ─────────────────────────────────────────────────────────────
+
+  /// Great-circle distance in metres between two coordinates (Haversine).
+  double getDistance(LatLng from, LatLng to) {
+    final dLat = _toRad(to.latitude - from.latitude);
+    final dLng = _toRad(to.longitude - from.longitude);
+    final a =
+        sin(dLat / 2) * sin(dLat / 2) +
+        cos(_toRad(from.latitude)) *
+            cos(_toRad(to.latitude)) *
+            sin(dLng / 2) *
+            sin(dLng / 2);
+    return _earthRadiusMeters * 2 * atan2(sqrt(a), sqrt(1 - a));
   }
 
-  void _refreshMarkers() {
-    final newMarkers = <Marker>{};
-    final pickup = pickupLocation.value;
-    final dropoff = dropoffLocation.value;
+  /// Distance in metres between pickup and dropoff. Returns 0 if either unset.
+  double getPickupDropoffDistance() {
+    final p = pickupLocation.value;
+    final d = dropoffLocation.value;
+    return (p != null && d != null) ? getDistance(p, d).toPrecision(2) : 0.0;
+  }
 
-    if (pickup != null) {
-      newMarkers.add(
-        Marker(
-          markerId: const MarkerId('pickup'),
-          position: pickup,
-          infoWindow: InfoWindow(
-            title: 'Pickup',
-            snippet: pickupAddress.value,
+  // ══════════════════════════════════════════════════════════════════════════
+  // Private – location helpers
+  // ══════════════════════════════════════════════════════════════════════════
+
+  Future<bool> _requestPermission() async {
+    if (!await Geolocator.isLocationServiceEnabled()) return false;
+    var permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+    return permission != LocationPermission.denied &&
+        permission != LocationPermission.deniedForever;
+  }
+
+  Future<void> _fetchCurrentPosition() async {
+    try {
+      final pos = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.best,
+        ),
+      );
+      if (isClosed) return;
+      currentPosition.value = LatLng(pos.latitude, pos.longitude);
+      _mapController?.animateCamera(
+        CameraUpdate.newLatLngZoom(currentPosition.value!, 15),
+      );
+    } catch (e) {
+      debugPrint('[MapsController] _fetchCurrentPosition error: $e');
+    }
+  }
+
+  Future<void> _startPositionStream({
+    required LocationAccuracy accuracy,
+    required int distanceFilter,
+  }) async {
+    await _positionSub?.cancel();
+    _positionSub =
+        Geolocator.getPositionStream(
+          locationSettings: LocationSettings(
+            accuracy: accuracy,
+            distanceFilter: distanceFilter,
           ),
+        ).listen((pos) {
+          if (isClosed) return;
+          currentPosition.value = LatLng(pos.latitude, pos.longitude);
+          _animateTo(currentPosition.value!);
+        });
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // Private – map layer helpers
+  // ══════════════════════════════════════════════════════════════════════════
+
+  void _onLocationsChanged() {
+    _updateMarkers();
+    _updateRoute(); // async – intentional fire-and-forget
+    _fitCamera();
+  }
+
+  void _updateMarkers() {
+    final updated = <Marker>{};
+
+    if (pickupLocation.value != null) {
+      updated.add(
+        _buildMarker(
+          id: 'pickup',
+          position: pickupLocation.value!,
+          title: 'Pickup',
+          snippet: pickupAddress.value,
+          hue: BitmapDescriptor.hueGreen,
         ),
       );
     }
 
-    if (dropoff != null) {
-      newMarkers.add(
-        Marker(
-          markerId: const MarkerId('dropoff'),
-          position: dropoff,
-          infoWindow: InfoWindow(
-            title: 'Dropoff',
-            snippet: dropoffAddress.value,
-          ),
+    if (dropoffLocation.value != null) {
+      updated.add(
+        _buildMarker(
+          id: 'dropoff',
+          position: dropoffLocation.value!,
+          title: 'Dropoff',
+          snippet: dropoffAddress.value,
+          hue: BitmapDescriptor.hueRed,
         ),
       );
     }
 
     markers
       ..clear()
-      ..addAll(newMarkers);
+      ..addAll(updated);
   }
 
-  void _refreshRoute() {
+  Marker _buildMarker({
+    required String id,
+    required LatLng position,
+    required String title,
+    String? snippet,
+    required double hue,
+  }) {
+    return Marker(
+      markerId: MarkerId(id),
+      position: position,
+      icon: BitmapDescriptor.defaultMarkerWithHue(hue),
+      infoWindow: InfoWindow(title: title, snippet: snippet),
+    );
+  }
+
+  Future<void> _updateRoute() async {
     final pickup = pickupLocation.value;
     final dropoff = dropoffLocation.value;
 
-    if (pickup == null) {
+    if (pickup == null || dropoff == null) {
       polylines.clear();
       return;
     }
 
-    final start = dropoff != null ? pickup : currentPosition.value;
-    final end = dropoff ?? pickup;
+    final routePoints = await _fetchRoutePoints(pickup, dropoff);
 
-    if (start != null) {
-      polylines
-        ..clear()
-        ..add(
-          Polyline(
-            polylineId: const PolylineId('pickup_dropoff'),
-            color: Colors.blue,
-            width: 4,
-            points: [start, end],
-          ),
-        );
-      return;
-    }
+    if (isClosed) return;
 
-    polylines.clear();
+    final isFallback = routePoints.length == 2;
+
+    polylines
+      ..clear()
+      ..add(
+        Polyline(
+          polylineId: const PolylineId('route'),
+          color: isFallback ? Colors.blueGrey : Colors.blue,
+          width: 5,
+          points: routePoints,
+          startCap: Cap.roundCap,
+          endCap: Cap.roundCap,
+          jointType: JointType.round,
+          // Dashed pattern signals a straight-line fallback to the user.
+          patterns: isFallback
+              ? [PatternItem.dash(20), PatternItem.gap(10)]
+              : [],
+        ),
+      );
   }
 
-  void _fitCameraToMarkers() {
+  /// Calls the Directions API and returns decoded route points.
+  /// Falls back to a two-point straight line on any failure.
+  Future<List<LatLng>> _fetchRoutePoints(LatLng origin, LatLng dest) async {
+    try {
+      final uri = Uri.parse('$mapUrl/directions/json').replace(
+        queryParameters: {
+          'origin': '${origin.latitude},${origin.longitude}',
+          'destination': '${dest.latitude},${dest.longitude}',
+          'mode': 'driving',
+          'key': _apiKey,
+        },
+      );
+
+      final response = await http.get(uri).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode != 200) {
+        debugPrint(
+          '[MapsController] Directions API HTTP ${response.statusCode}',
+        );
+        return [origin, dest];
+      }
+
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+
+      if (body['status'] != 'OK') {
+        debugPrint('[MapsController] Directions API status: ${body['status']}');
+        return [origin, dest];
+      }
+
+      final encoded =
+          body['routes']?[0]?['overview_polyline']?['points'] as String?;
+
+      if (encoded == null || encoded.isEmpty) {
+        debugPrint('[MapsController] Directions API: empty polyline');
+        return [origin, dest];
+      }
+
+      return _decodePolyline(encoded);
+    } catch (e) {
+      debugPrint('[MapsController] _fetchRoutePoints error: $e');
+      return [origin, dest];
+    }
+  }
+
+  /// Decodes a Google encoded polyline string into a list of [LatLng].
+  /// Spec: https://developers.google.com/maps/documentation/utilities/polylinealgorithm
+  List<LatLng> _decodePolyline(String encoded) {
+    final points = <LatLng>[];
+    int index = 0;
+    int lat = 0;
+    int lng = 0;
+
+    while (index < encoded.length) {
+      int delta = 0;
+      int shift = 0;
+      int byte;
+
+      // Decode one variable-length integer (latitude or longitude delta).
+      do {
+        byte = encoded.codeUnitAt(index++) - 63;
+        delta |= (byte & 0x1F) << shift;
+        shift += 5;
+      } while (byte >= 0x20);
+      lat += (delta & 1) != 0 ? ~(delta >> 1) : (delta >> 1);
+
+      delta = 0;
+      shift = 0;
+
+      do {
+        byte = encoded.codeUnitAt(index++) - 63;
+        delta |= (byte & 0x1F) << shift;
+        shift += 5;
+      } while (byte >= 0x20);
+      lng += (delta & 1) != 0 ? ~(delta >> 1) : (delta >> 1);
+
+      points.add(LatLng(lat / 1e5, lng / 1e5));
+    }
+
+    return points;
+  }
+
+  void _fitCamera() {
+    if (_mapController == null) return;
+
     final pickup = pickupLocation.value;
     final dropoff = dropoffLocation.value;
-    if (_mapController == null) return;
 
     if (pickup != null && dropoff != null) {
       final bounds = LatLngBounds(
@@ -236,73 +405,19 @@ class MapsController extends GetxController {
           max(pickup.longitude, dropoff.longitude),
         ),
       );
-      _mapController?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 60));
+      _mapController!.animateCamera(CameraUpdate.newLatLngBounds(bounds, 64));
       return;
     }
 
     final single = pickup ?? dropoff;
     if (single != null) {
-      _mapController?.animateCamera(CameraUpdate.newLatLng(single));
+      _mapController!.animateCamera(CameraUpdate.newLatLngZoom(single, 15));
     }
   }
 
-  Future<void> initLocation() async {
-    final hasPermission = await _checkPermission();
-    if (!hasPermission || isClosed) return;
-
-    locationPermissionGranted.value = true;
-
-    await _getCurrentLocation();
-
-    await _positionSub?.cancel();
-    _positionSub =
-        Geolocator.getPositionStream(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.best,
-            distanceFilter: 5,
-          ),
-        ).listen((position) {
-          currentPosition.value = LatLng(position.latitude, position.longitude);
-          _mapController?.animateCamera(
-            CameraUpdate.newLatLng(currentPosition.value!),
-          );
-          if (pickupLocation.value != null && dropoffLocation.value == null) {
-            _refreshRoute();
-          }
-        });
+  void _animateTo(LatLng position) {
+    _mapController?.animateCamera(CameraUpdate.newLatLng(position));
   }
 
-  Future<void> stopLocationUpdates() async {
-    await _positionSub?.cancel();
-    _positionSub = null;
-  }
-
-  Future<bool> _checkPermission() async {
-    if (!await Geolocator.isLocationServiceEnabled()) return false;
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) return false;
-    }
-    return permission != LocationPermission.deniedForever;
-  }
-
-  Future<void> _getCurrentLocation() async {
-    try {
-      final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.best,
-        ),
-      );
-
-      currentPosition.value = LatLng(position.latitude, position.longitude);
-      _mapController?.animateCamera(
-        CameraUpdate.newLatLngZoom(currentPosition.value!, 15),
-      );
-    } catch (e) {
-      debugPrint('Error getting location: $e');
-    }
-  }
-
-  double _degToRad(double degrees) => degrees * (pi / 180.0);
+  double _toRad(double degrees) => degrees * (pi / 180.0);
 }

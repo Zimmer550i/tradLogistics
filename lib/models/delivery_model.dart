@@ -214,10 +214,10 @@ class Driver extends User {
   final String? registrationNumber;
 
   Driver({
-    required int userId,
-    required String name,
-    required String phone,
-    required String profileImage,
+    required super.userId,
+    required super.name,
+    required super.phone,
+    required super.profileImage,
     this.ratingCount,
     this.averageRating,
     this.vehicleType,
@@ -225,12 +225,7 @@ class Driver extends User {
     this.model,
     this.color,
     this.registrationNumber,
-  }) : super(
-         userId: userId,
-         name: name,
-         phone: phone,
-         profileImage: profileImage,
-       );
+  });
 
   factory Driver.fromJson(Map<String, dynamic> json) {
     return Driver(

@@ -42,7 +42,8 @@ class DriverDeliveryController extends BaseController {
       return;
     }
     await apiCall(() async {
-      final endpoint = '${ApiEndpoints.driverDeliveries.replaceAll("driver/", "")}${delivery.id}/';
+      final endpoint =
+          '${ApiEndpoints.driverDeliveries.replaceAll("driver/", "")}${delivery.id}/';
       final data = await _api.get(endpoint);
       currentDelivery.value = DeliveryModel.fromJson(data);
     });
@@ -58,6 +59,7 @@ class DriverDeliveryController extends BaseController {
         currentDelivery.value = DeliveryModel.fromJson(
           payload.first as Map<String, dynamic>,
         );
+        await updateDelivery();
       } else {
         currentDelivery.value = null;
       }
@@ -124,6 +126,7 @@ class DriverDeliveryController extends BaseController {
 
   void declineDelivery() async {
     currentDelivery.value = null;
+    update();
   }
 
   Future<void> fetchOngoingDeliveries() async {
