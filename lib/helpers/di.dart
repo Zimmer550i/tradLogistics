@@ -9,6 +9,7 @@ import 'package:template/controllers/chat_controller.dart';
 import 'package:template/controllers/driver_delivery_controller.dart';
 import 'package:template/controllers/loading_controller.dart';
 import 'package:template/controllers/maps_controller.dart';
+import 'package:template/controllers/suggestion_controller.dart';
 import 'package:template/controllers/user_delivery_controller.dart';
 import 'package:template/controllers/user_profile_controller.dart';
 import 'package:template/controllers/wallet_controller.dart';
@@ -28,6 +29,7 @@ Future<Map<String, Map<String, String>>> init() async {
   Get.put(UserProfileController());
   Get.put(WalletController());
   Get.put(MapsController());
+  Get.put(SuggestionController());
   Get.put(UserDeliveryController());
   Get.put(DriverDeliveryController());
   Get.put(ChatController());

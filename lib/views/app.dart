@@ -7,15 +7,25 @@ import 'package:template/views/screens/driver/earnings/driver_earnings.dart';
 import 'package:template/views/screens/driver/home/driver_home.dart';
 import 'package:template/views/screens/user/home/user_home.dart';
 
+final GlobalKey<AppState> appKey = GlobalKey<AppState>();
+
+void setAppTab(int newIndex) {
+  final state = appKey.currentState;
+  if (state == null) {
+    return;
+  }
+  state.setIndex(newIndex);
+}
+
 class App extends StatefulWidget {
   final bool isUser;
   const App({super.key, this.isUser = true});
 
   @override
-  State<App> createState() => _AppState();
+  State<App> createState() => AppState();
 }
 
-class _AppState extends State<App> {
+class AppState extends State<App> {
   int index = 0;
   List<Widget> userPages = [
     UserHome(),
@@ -31,6 +41,15 @@ class _AppState extends State<App> {
     Account(isUser: false),
   ];
 
+  void setIndex(int newIndex) {
+    if (newIndex == index) {
+      return;
+    }
+    setState(() {
+      index = newIndex;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,9 +58,7 @@ class _AppState extends State<App> {
         index: index,
         isUser: widget.isUser,
         onChanged: (val) {
-          setState(() {
-            index = val;
-          });
+          setIndex(val);
         },
       ),
     );

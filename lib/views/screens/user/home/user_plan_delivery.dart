@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:get/get.dart';
-import 'package:template/controllers/maps_controller.dart';
+import 'package:template/controllers/suggestion_controller.dart';
 import 'package:template/controllers/user_delivery_controller.dart';
 import 'package:template/models/delivery_model.dart';
 import 'package:template/utils/app_colors.dart';
@@ -12,7 +12,7 @@ import 'package:template/views/base/custom_button.dart';
 import 'package:template/views/base/custom_drop_down.dart';
 import 'package:template/views/base/custom_text_field.dart';
 import 'package:template/views/screens/user/home/user_schedule_delivery.dart';
-import 'package:template/views/screens/user/map/user_map.dart' show UserMap;
+import 'package:template/views/screens/user/map/user_map.dart';
 
 class UserPlanDelivery extends StatefulWidget {
   final int? autoFocusField;
@@ -28,7 +28,7 @@ class UserPlanDelivery extends StatefulWidget {
 }
 
 class _UserPlanDeliveryState extends State<UserPlanDelivery> {
-  final map = Get.find<MapsController>();
+  final autofill = Get.find<SuggestionController>();
   final delivery = Get.find<UserDeliveryController>();
 
   int? vehicleTypeSelected;
@@ -53,7 +53,7 @@ class _UserPlanDeliveryState extends State<UserPlanDelivery> {
   @override
   void initState() {
     super.initState();
-    map.predictions.clear();
+    autofill.predictions.clear();
   }
 
   void generatePayload() async {
@@ -128,7 +128,7 @@ class _UserPlanDeliveryState extends State<UserPlanDelivery> {
                             style: AppTexts.tsmm,
                             controller: firstLocation,
                             onChanged: (value) {
-                              map.onSearchChanged(value);
+                              autofill.onSearchChanged(value);
                               pickingFirstLocation = true;
                             },
                             autofocus: widget.autoFocusField == 0,
@@ -150,7 +150,7 @@ class _UserPlanDeliveryState extends State<UserPlanDelivery> {
                             style: AppTexts.tsmm,
                             controller: lastLocation,
                             onChanged: (value) {
-                              map.onSearchChanged(value);
+                              autofill.onSearchChanged(value);
                               pickingFirstLocation = false;
                             },
                             autofocus: widget.autoFocusField == 1,
@@ -171,7 +171,7 @@ class _UserPlanDeliveryState extends State<UserPlanDelivery> {
                 ),
               ),
               Obx(
-                () => map.predictions.isNotEmpty
+                () => autofill.predictions.isNotEmpty
                     ? Container(
                         margin: EdgeInsets.symmetric(vertical: 8),
                         padding: EdgeInsets.all(8),
@@ -190,8 +190,8 @@ class _UserPlanDeliveryState extends State<UserPlanDelivery> {
                           shrinkWrap: true,
                           itemBuilder: (context, index) => GestureDetector(
                             onTap: () {
-                              map.selectPrediction(
-                                map.predictions.elementAt(index),
+                              autofill.selectPrediction(
+                                autofill.predictions.elementAt(index),
                                 pickingFirstLocation
                                     ? firstLocation
                                     : lastLocation,
@@ -220,7 +220,7 @@ class _UserPlanDeliveryState extends State<UserPlanDelivery> {
                                   CustomSvg(asset: "assets/icons/location.svg"),
                                   Expanded(
                                     child: Text(
-                                      map.predictions
+                                      autofill.predictions
                                           .elementAt(index)
                                           .description,
                                     ),
@@ -233,7 +233,7 @@ class _UserPlanDeliveryState extends State<UserPlanDelivery> {
                             thickness: 0.5,
                             color: AppColors.neutral.shade200,
                           ),
-                          itemCount: map.predictions.length,
+                          itemCount: autofill.predictions.length,
                         ),
                       )
                     : Container(),

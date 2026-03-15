@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:template/controllers/maps_controller.dart';
+import 'package:template/controllers/suggestion_controller.dart';
 import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/utils/custom_svg.dart';
@@ -18,7 +18,7 @@ class OrderGas extends StatefulWidget {
 }
 
 class _OrderGasState extends State<OrderGas> {
-  final map = Get.find<MapsController>();
+  final suggestions = Get.find<SuggestionController>();
 
   int speed = -1;
   final _focusNode = FocusNode();
@@ -99,7 +99,7 @@ class _OrderGasState extends State<OrderGas> {
                     Expanded(
                       child: TextField(
                         style: AppTexts.tsmm,
-                        onChanged: map.onSearchChanged,
+                        onChanged: suggestions.onSearchChanged,
                         controller: deliveryAddressController,
                         autofocus: true,
                         focusNode: _focusNode,
@@ -119,7 +119,7 @@ class _OrderGasState extends State<OrderGas> {
                 ),
               ),
               Obx(
-                () => map.predictions.isNotEmpty
+                () => suggestions.predictions.isNotEmpty
                     ? Container(
                         margin: EdgeInsets.symmetric(vertical: 8),
                         padding: EdgeInsets.all(8),
@@ -138,8 +138,8 @@ class _OrderGasState extends State<OrderGas> {
                           shrinkWrap: true,
                           itemBuilder: (context, index) => GestureDetector(
                             onTap: () {
-                              map.selectPrediction(
-                                map.predictions.elementAt(index),
+                              suggestions.selectPrediction(
+                                suggestions.predictions.elementAt(index),
                                 deliveryAddressController,
                                 callback: (lat, lng) {
                                   setState(() {
@@ -161,7 +161,7 @@ class _OrderGasState extends State<OrderGas> {
                                   CustomSvg(asset: "assets/icons/location.svg"),
                                   Expanded(
                                     child: Text(
-                                      map.predictions
+                                      suggestions.predictions
                                           .elementAt(index)
                                           .description,
                                     ),
@@ -174,7 +174,7 @@ class _OrderGasState extends State<OrderGas> {
                             thickness: 0.5,
                             color: AppColors.neutral.shade200,
                           ),
-                          itemCount: map.predictions.length,
+                          itemCount: suggestions.predictions.length,
                         ),
                       )
                     : Container(),

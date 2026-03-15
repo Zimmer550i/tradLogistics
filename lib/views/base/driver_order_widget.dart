@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:template/config/environment.dart';
 import 'package:template/controllers/chat_controller.dart';
 import 'package:template/controllers/driver_delivery_controller.dart';
+import 'package:template/controllers/maps_controller.dart';
 import 'package:template/error/error_handler.dart';
 import 'package:template/models/delivery_model.dart';
 import 'package:template/utils/app_colors.dart';
 import 'package:template/utils/app_texts.dart';
 import 'package:template/utils/custom_svg.dart';
+import 'package:template/views/app.dart';
 import 'package:template/views/base/custom_button.dart';
 import 'package:template/views/base/profile_picture.dart';
 import 'package:template/views/screens/common/chat.dart';
@@ -33,140 +36,147 @@ class DriverOrderWidget extends StatefulWidget {
 
 class _OrderWidgetState extends State<DriverOrderWidget> {
   final controller = Get.find<DriverDeliveryController>();
+  final mapController = Get.find<MapsController>();
 
   bool isExpanded = false;
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => Container(
-        padding: EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              offset: Offset(0, 2),
-              blurRadius: 8,
-              color: AppColors.black.withValues(alpha: 0.2),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            if (Get.find<DriverDeliveryController>().isOngoing) profileInfo(),
-            AnimatedSize(
-              duration: Duration(milliseconds: 200),
-              child: !widget.isExpandable || (widget.isExpandable && isExpanded)
-                  ? Column(
-                      spacing: 16,
-                      children: [
-                        if (Get.find<DriverDeliveryController>().isOngoing)
-                          const SizedBox(),
+    return Container(
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            offset: Offset(0, 2),
+            blurRadius: 8,
+            color: AppColors.black.withValues(alpha: 0.2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          if (widget.delivery.status != Status.searching) profileInfo(),
+          AnimatedSize(
+            duration: Duration(milliseconds: 200),
+            child: !widget.isExpandable || (widget.isExpandable && isExpanded)
+                ? Column(
+                    spacing: 16,
+                    children: [
+                      if (widget.delivery.status != Status.searching)
+                        const SizedBox(),
 
-                        Row(
-                          children: [
-                            CustomSvg(
-                              asset:
-                                  widget.delivery.serviceType !=
-                                      ServiceType.cookingGas
-                                  ? "assets/icons/from_to.svg"
-                                  : "assets/icons/to.svg",
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    widget.delivery.pickupAddress,
-                                    style: AppTexts.tsmr,
-                                  ),
-                                  if (widget.delivery.serviceType !=
-                                      ServiceType.cookingGas)
-                                    Text(
-                                      widget.delivery.dropoffAddress,
-                                      style: AppTexts.tsmr,
-                                    ),
-                                ],
-                              ),
-                            ),
-                            if (widget.delivery.status == Status.searching)
-                              Text(
-                                "\$${widget.delivery.price}",
-                                style: AppTexts.dxsm,
-                              ),
-                          ],
-                        ),
-                        if (widget.delivery.serviceType ==
-                            ServiceType.cookingGas)
-                          if (widget.delivery.serviceType !=
-                              ServiceType.cookingGas)
-                            Row(
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CustomSvg(
+                            asset:
+                                widget.delivery.serviceType !=
+                                    ServiceType.cookingGas
+                                ? "assets/icons/from_to.svg"
+                                : "assets/icons/to.svg",
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                CustomSvg(asset: "assets/icons/clock.svg"),
-                                const SizedBox(width: 16),
                                 Text(
-                                  DateTime.now().difference(
-                                            widget.delivery.scheduledAt ??
-                                                DateTime.now(),
-                                          ) <
-                                          Duration(hours: 1)
-                                      ? "Now"
-                                      : DateFormat().format(
-                                          widget.delivery.scheduledAt ??
-                                              DateTime.now(),
-                                        ),
+                                  widget.delivery.pickupAddress,
                                   style: AppTexts.tsmr,
                                 ),
+                                if (widget.delivery.serviceType !=
+                                    ServiceType.cookingGas)
+                                  Text(
+                                    widget.delivery.dropoffAddress,
+                                    style: AppTexts.tsmr,
+                                  ),
                               ],
                             ),
-                        // if (widget.showPriceBelow)
-                        //   Align(
-                        //     alignment: Alignment.centerLeft,
-                        //     child: Text("\$120", style: AppTexts.dxsm),
-                        //   ),
-                        // TODO: Calculate these
-                        if (widget.delivery.status == Status.searching)
-                          Column(
-                            spacing: 12,
+                          ),
+                          if (widget.delivery.status == Status.searching)
+                            Text(
+                              "\$${widget.delivery.price}",
+                              style: AppTexts.dxsm,
+                            ),
+                        ],
+                      ),
+                      if (widget.delivery.serviceType == ServiceType.cookingGas)
+                        if (widget.delivery.serviceType !=
+                            ServiceType.cookingGas)
+                          Row(
                             children: [
-                              Row(
-                                spacing: 8,
-                                children: [
-                                  Text(
-                                    "Distance to pickup:",
-                                    style: AppTexts.tmdm,
-                                  ),
-                                  Text("2.3 km away", style: AppTexts.tmdr),
-                                ],
-                              ),
-                              Row(
-                                spacing: 8,
-                                children: [
-                                  Text("Est. distance:", style: AppTexts.tmdm),
-                                  Text("8.5 km total", style: AppTexts.tmdr),
-                                ],
-                              ),
-                              Row(
-                                spacing: 8,
-                                children: [
-                                  Text("Est. Time:", style: AppTexts.tmdm),
-                                  Text("~18 mins total", style: AppTexts.tmdr),
-                                ],
+                              CustomSvg(asset: "assets/icons/clock.svg"),
+                              const SizedBox(width: 16),
+                              Text(
+                                DateTime.now().difference(
+                                          widget.delivery.scheduledAt ??
+                                              DateTime.now(),
+                                        ) <
+                                        Duration(hours: 1)
+                                    ? "Now"
+                                    : DateFormat().format(
+                                        widget.delivery.scheduledAt ??
+                                            DateTime.now(),
+                                      ),
+                                style: AppTexts.tsmr,
                               ),
                             ],
                           ),
-                        Text(widget.delivery.status.toString()),
-                        getActionButtons(),
-                      ],
-                    )
-                  : SizedBox(height: 0, width: double.infinity),
-            ),
-          ],
-        ),
+                      // if (widget.showPriceBelow)
+                      //   Align(
+                      //     alignment: Alignment.centerLeft,
+                      //     child: Text("\$120", style: AppTexts.dxsm),
+                      //   ),
+                      // TODO: Calculate these
+                      if (widget.delivery.status == Status.searching)
+                        Column(
+                          spacing: 12,
+                          children: [
+                            Row(
+                              spacing: 8,
+                              children: [
+                                Text(
+                                  "Distance to pickup:",
+                                  style: AppTexts.tmdm,
+                                ),
+                                Text(
+                                  "${mapController.getDistance(LatLng(widget.delivery.pickupLat!, widget.delivery.pickupLng!), LatLng(widget.delivery.dropoffLat!, widget.delivery.dropoffLng!)) / 1000} km away",
+                                  style: AppTexts.tmdr,
+                                ),
+                              ],
+                            ),
+                            Row(
+                              spacing: 8,
+                              children: [
+                                Text("Est. distance:", style: AppTexts.tmdm),
+                                Text(
+                                  "${mapController.getPickupDropoffDistance()} km total",
+                                  style: AppTexts.tmdr,
+                                ),
+                              ],
+                            ),
+                            Row(
+                              spacing: 8,
+                              children: [
+                                Text("Est. Time:", style: AppTexts.tmdm),
+                                Text(
+                                  "~${mapController.getPickupDropoffDistance() ~/ 100} mins total",
+                                  style: AppTexts.tmdr,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      Text(widget.delivery.status.toString()),
+                      getActionButtons(),
+                    ],
+                  )
+                : SizedBox(height: 0, width: double.infinity),
+          ),
+        ],
       ),
     );
   }
@@ -177,7 +187,7 @@ class _OrderWidgetState extends State<DriverOrderWidget> {
         CustomSvg(asset: "assets/icons/vehicle.svg"),
         const SizedBox(width: 4),
         Text(
-          "Blue-Toyota Hiace • DHK-1243",
+          widget.delivery.vehicleType.toString(),
           style: AppTexts.tmdm.copyWith(color: AppColors.neutral.shade700),
         ),
       ],
@@ -296,9 +306,27 @@ class _OrderWidgetState extends State<DriverOrderWidget> {
               child: CustomButton(
                 padding: 0,
                 leading: "assets/icons/navigate.svg",
-                onTap: () {
-                  // TODO: set
-                  // final map = Get.find<MapsController>();
+                onTap: () async {
+                  setAppTab(0);
+                  final map = Get.find<MapsController>();
+                  final driverController = Get.find<DriverDeliveryController>();
+                  driverController.currentDelivery.value = widget.delivery;
+
+                  await driverController.updateDelivery();
+                  final delivery = driverController.data;
+
+                  final pickupLat = delivery.pickupLat;
+                  final pickupLng = delivery.pickupLng;
+
+                  if (pickupLat == null || pickupLng == null) {
+                    ErrorHandler.showSnackbar("Pickup location is unavailable");
+                    return;
+                  }
+
+                  final pickup = LatLng(pickupLat, pickupLng);
+                  map.setPickupLocation(pickup);
+
+                  map.startNavigation();
                 },
                 text: "Navigate",
               ),

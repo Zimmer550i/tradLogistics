@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:template/controllers/base_controller.dart';
 import 'package:template/controllers/user_profile_controller.dart';
@@ -33,6 +34,18 @@ class UserDeliveryController extends BaseController {
     }
   }
 
+  Future<void> updateDelivery() async {
+    final delivery = currentDelivery.value;
+    if (delivery == null) {
+      return;
+    }
+    await apiCall(() async {
+      final endpoint = '${ApiEndpoints.userDeliveries}${delivery.id}/';
+      final data = await _api.get(endpoint);
+      currentDelivery.value = DeliveryModel.fromJson(data);
+    });
+  }
+
   Future<DeliveryModel?> createDelivery(Map<String, dynamic> body) async {
     return apiCall(() async {
       final data = await _api.post(ApiEndpoints.userDeliveries, body: body);
@@ -49,24 +62,12 @@ class UserDeliveryController extends BaseController {
     }
     return apiCall(() async {
       final endpoint =
-          '${ApiEndpoints.userDeliveries}${delivery.id}/search-driver/';
+          '${ApiEndpoints.userDeliveries.replaceAll("user/", "")}${delivery.id}/search-driver/';
       final data = await _api.post(endpoint);
       final updated = DeliveryModel.fromJson(data['data']);
       currentDelivery.value = updated;
       return updated;
     }, showOverlay: true);
-  }
-
-  Future<void> updateDelivery() async {
-    final delivery = currentDelivery.value;
-    if (delivery == null) {
-      return;
-    }
-    await apiCall(() async {
-      final endpoint = '${ApiEndpoints.userDeliveries}${delivery.id}/';
-      final data = await _api.get(endpoint);
-      currentDelivery.value = DeliveryModel.fromJson(data);
-    });
   }
 
   Future<void> cancelDelivery() async {

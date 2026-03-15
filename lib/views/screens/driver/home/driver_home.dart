@@ -55,6 +55,7 @@ class _DriverHomeState extends State<DriverHome> {
               onMapCreated: mapsController.setMapController,
               myLocationEnabled: mapsController.locationPermissionGranted.value,
               myLocationButtonEnabled: false,
+              polylines: mapsController.polylines,
               initialCameraPosition: CameraPosition(
                 target: currentPosition,
                 zoom: 17,

@@ -36,6 +36,18 @@ class DriverDeliveryController extends BaseController {
     }
   }
 
+  Future<void> updateDelivery() async {
+    final delivery = currentDelivery.value;
+    if (delivery == null) {
+      return;
+    }
+    await apiCall(() async {
+      final endpoint = '${ApiEndpoints.driverDeliveries.replaceAll("driver/", "")}${delivery.id}/';
+      final data = await _api.get(endpoint);
+      currentDelivery.value = DeliveryModel.fromJson(data);
+    });
+  }
+
   Future<void> fetchAvailableDelivery() async {
     await apiCall(() async {
       final data = await _api.get(ApiEndpoints.driverAvailableDeliveries);
@@ -76,10 +88,13 @@ class DriverDeliveryController extends BaseController {
 
   void _startOnlinePolling() {
     _onlinePoller?.cancel();
-    _onlinePoller = Timer.periodic(
-      const Duration(seconds: 5),
-      (_) => fetchAvailableDelivery(),
-    );
+    _onlinePoller = Timer.periodic(const Duration(seconds: 5), (_) {
+      if (currentDelivery.value == null) {
+        fetchAvailableDelivery();
+      } else if (currentDelivery.value?.status == Status.driverAssigned) {
+        // Driver Position
+      }
+    });
     fetchAvailableDelivery();
   }
 
@@ -100,7 +115,10 @@ class DriverDeliveryController extends BaseController {
       await _api.post(endpoint);
       // final updated = DeliveryModel.fromJson(data['data']);
       currentDelivery.value!.status = Status.driverAssigned;
-      _stopOnlinePolling();
+      if (currentDelivery.value?.scheduledAt != null) {
+        currentDelivery.value = null;
+      }
+      updateDelivery();
     }, showOverlay: true);
   }
 

@@ -204,6 +204,68 @@ class User {
   }
 }
 
+class Driver extends User {
+  final int? ratingCount;
+  final double? averageRating;
+  final String? vehicleType;
+  final String? brand;
+  final String? model;
+  final String? color;
+  final String? registrationNumber;
+
+  Driver({
+    required int userId,
+    required String name,
+    required String phone,
+    required String profileImage,
+    this.ratingCount,
+    this.averageRating,
+    this.vehicleType,
+    this.brand,
+    this.model,
+    this.color,
+    this.registrationNumber,
+  }) : super(
+         userId: userId,
+         name: name,
+         phone: phone,
+         profileImage: profileImage,
+       );
+
+  factory Driver.fromJson(Map<String, dynamic> json) {
+    return Driver(
+      userId: json['user_id'],
+      name: json['name'],
+      phone: json['phone'],
+      profileImage: json['profile_image'],
+      ratingCount: json['rating_count'],
+      averageRating: json['average_rating'] != null
+          ? (json['average_rating'] as num).toDouble()
+          : null,
+      vehicleType: json['vehicle_type'],
+      brand: json['brand'],
+      model: json['model'],
+      color: json['color'],
+      registrationNumber: json['registration_number'],
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    final map = super.toJson();
+    map.addAll({
+      'rating_count': ratingCount,
+      'average_rating': averageRating,
+      'vehicle_type': vehicleType,
+      'brand': brand,
+      'model': model,
+      'color': color,
+      'registration_number': registrationNumber,
+    });
+    return map;
+  }
+}
+
 class DeliveryModel {
   final int id;
   final String publicId;
@@ -225,7 +287,7 @@ class DeliveryModel {
   final PaymentMethod paymentMethod;
   final String price;
   final User customer;
-  final User? driver;
+  final Driver? driver;
   final Map<String, dynamic> priceBreakdown;
   final Map<String, dynamic> serviceData;
   final String? verificationPin;
@@ -274,7 +336,7 @@ class DeliveryModel {
   });
 
   factory DeliveryModel.fromJson(Map<String, dynamic> json) {
-    return DeliveryModel(
+    final model = DeliveryModel(
       id: json['id'],
       publicId: json['public_id'],
       status: StatusHelper.fromJson(json['status']),
@@ -283,19 +345,11 @@ class DeliveryModel {
           ? null
           : VehicleTypeHelper.fromJson(json['vehicle_type']),
       pickupAddress: json['pickup_address'],
-      pickupLat: json['pickup_lat'] != null
-          ? (json['pickup_lat'] as num).toDouble()
-          : null,
-      pickupLng: json['pickup_lng'] != null
-          ? (json['pickup_lng'] as num).toDouble()
-          : null,
+      pickupLat: (json['pickup_lat'] as num?)?.toDouble(),
+      pickupLng: (json['pickup_lng'] as num?)?.toDouble(),
       dropoffAddress: json['dropoff_address'],
-      dropoffLat: json['dropoff_lat'] != null
-          ? (json['dropoff_lat'] as num).toDouble()
-          : null,
-      dropoffLng: json['dropoff_lng'] != null
-          ? (json['dropoff_lng'] as num).toDouble()
-          : null,
+      dropoffLat: (json['dropoff_lat'] as num?)?.toDouble(),
+      dropoffLng: (json['dropoff_lng'] as num?)?.toDouble(),
       weight: json['weight'] != null
           ? (json['weight'] as num).toDouble()
           : null,
@@ -309,7 +363,7 @@ class DeliveryModel {
       paymentMethod: PaymentMethodHelper.fromJson(json['payment_method']),
       price: json['price'],
       customer: User.fromJson(json['customer']),
-      driver: json['driver'] != null ? User.fromJson(json['driver']) : null,
+      driver: json['driver'] != null ? Driver.fromJson(json['driver']) : null,
       priceBreakdown: json['price_breakdown'] ?? {},
       serviceData: json['service_data'] ?? {},
       verificationPin: json['verification_pin'],
@@ -332,6 +386,7 @@ class DeliveryModel {
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
     );
+    return model;
   }
 
   Map<String, dynamic> toJson() {
