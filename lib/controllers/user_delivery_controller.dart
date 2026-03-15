@@ -22,6 +22,7 @@ class UserDeliveryController extends BaseController {
     }
     switch (delivery.status) {
       case Status.driverAssigned:
+      case Status.goingToPickUp:
       case Status.pickedUp:
       case Status.inTransit:
         return true;

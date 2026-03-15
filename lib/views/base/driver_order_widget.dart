@@ -299,7 +299,7 @@ class _OrderWidgetState extends State<DriverOrderWidget> {
               child: CustomButton(
                 padding: 0,
                 leading: "assets/icons/close.svg",
-                // onTap: () => controller.declineDelivery(),
+                onTap: () => controller.declineDelivery(),
                 text: "Cancel",
                 isSecondary: true,
               ),
@@ -326,9 +326,12 @@ class _OrderWidgetState extends State<DriverOrderWidget> {
                   }
 
                   final pickup = LatLng(pickupLat, pickupLng);
-                  map.setPickupLocation(pickup);
-
-                  map.startNavigation();
+                  map.startNavigation().then((val) {
+                    map.setCurrentLocationAsPickup();
+                    map.dropoffLocation(pickup);
+                  });
+                  controller.currentDelivery.value?.status =
+                      Status.goingToPickUp;
                 },
                 text: "Navigate",
               ),

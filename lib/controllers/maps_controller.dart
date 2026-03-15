@@ -20,6 +20,7 @@ class MapsController extends GetxController {
   final selectingPickup = true.obs;
   final RxSet<Marker> markers = <Marker>{}.obs;
   final RxSet<Polyline> polylines = <Polyline>{}.obs;
+  final RxBool isNavigating = RxBool(false);
 
   // ─── Config ───────────────────────────────────────────────────────────────
   final String mapUrl = 'https://maps.googleapis.com/maps/api';
@@ -123,14 +124,22 @@ class MapsController extends GetxController {
   }
 
   // ─── Pickup / dropoff ─────────────────────────────────────────────────────
+  
+  Future<void> setCurrentLocationAsPickup() async {
+    final pos = currentPosition.value;
+    if (pos == null) return;
+    setPickupLocation(pos, address: 'Current Location');
+  }
 
-  void setPickupLocation(LatLng position, {String? address}) {
+  void setPickupLocation(LatLng? position, {String? address}) {
+    position ??= currentPosition.value;
     pickupLocation.value = position;
     if (address != null) pickupAddress.value = address;
     _onLocationsChanged();
   }
 
-  void setDropoffLocation(LatLng position, {String? address}) {
+  void setDropoffLocation(LatLng? position, {String? address}) {
+    position ??= currentPosition.value;
     dropoffLocation.value = position;
     if (address != null) dropoffAddress.value = address;
     _onLocationsChanged();
@@ -236,7 +245,7 @@ class MapsController extends GetxController {
           position: pickupLocation.value!,
           title: 'Pickup',
           snippet: pickupAddress.value,
-          hue: BitmapDescriptor.hueGreen,
+          hue: BitmapDescriptor.hueBlue,
         ),
       );
     }
@@ -248,7 +257,7 @@ class MapsController extends GetxController {
           position: dropoffLocation.value!,
           title: 'Dropoff',
           snippet: dropoffAddress.value,
-          hue: BitmapDescriptor.hueRed,
+          hue: BitmapDescriptor.hueAzure,
         ),
       );
     }

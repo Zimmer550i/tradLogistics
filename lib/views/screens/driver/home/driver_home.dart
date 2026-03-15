@@ -21,7 +21,6 @@ class _DriverHomeState extends State<DriverHome> {
   final controller = Get.find<DriverDeliveryController>();
   final mapsController = Get.find<MapsController>();
   int state = 0;
-  bool runningTrip = false;
 
   @override
   void initState() {
@@ -50,96 +49,98 @@ class _DriverHomeState extends State<DriverHome> {
 
       return SafeArea(
         child: Stack(
-            children: [
-              GoogleMap(
-                onMapCreated: mapsController.setMapController,
-                myLocationEnabled:
-                    mapsController.locationPermissionGranted.value,
-                myLocationButtonEnabled: false,
-                polylines: mapsController.polylines.toSet(),
-                markers: mapsController.markers.toSet(),
-                initialCameraPosition: CameraPosition(
-                  target: currentPosition,
-                  zoom: 17,
+          children: [
+            GoogleMap(
+              onMapCreated: mapsController.setMapController,
+              myLocationEnabled: mapsController.locationPermissionGranted.value,
+              myLocationButtonEnabled: false,
+              polylines: mapsController.polylines.toSet(),
+              markers: mapsController.markers.toSet(),
+              initialCameraPosition: CameraPosition(
+                target: currentPosition,
+                zoom: 17,
+              ),
+            ),
+            if (controller.isOnline.value &&
+                controller.currentDelivery.value != null &&
+                (mapsController.pickupLocation.value == null &&
+                    mapsController.dropoffLocation.value == null))
+              Positioned.fill(
+                child: Container(color: Colors.black.withValues(alpha: 0.22)),
+              ),
+            if (!controller.isOngoing)
+              Positioned(
+                top: 24,
+                right: 16,
+                child: CustomButton(
+                  onTap: () {
+                    controller.toggleAvailability();
+                  },
+                  text: "Ready to Ride",
+                  padding: 20,
+                  isSecondary: !controller.isOnline.value,
+                  width: null,
+                  leading:
+                      "assets/icons/switch_${controller.isOnline.value ? "on" : "off"}.svg",
                 ),
               ),
-              if (controller.isOnline.value &&
-                  controller.currentDelivery.value != null)
-                Positioned.fill(
-                  child: Container(color: Colors.black.withValues(alpha: 0.22)),
-                ),
-              if (!runningTrip)
-                Positioned(
-                  top: 24,
-                  right: 16,
-                  child: CustomButton(
-                    onTap: () {
-                      controller.toggleAvailability();
-                    },
-                    text: "Ready to Ride",
-                    padding: 20,
-                    isSecondary: !controller.isOnline.value,
-                    width: null,
-                    leading:
-                        "assets/icons/switch_${controller.isOnline.value ? "on" : "off"}.svg",
-                  ),
-                ),
-              if (!controller.isOnline.value)
-                Positioned(
-                  top: 100,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: AppColors.white),
-                    child: Row(
-                      spacing: 8,
-                      children: [
-                        CustomSvg(asset: "assets/icons/offline.svg"),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "You’re currently offline",
-                                style: AppTexts.txlm,
+            if (!controller.isOnline.value)
+              Positioned(
+                top: 100,
+                left: 0,
+                right: 0,
+                child: Container(
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(color: AppColors.white),
+                  child: Row(
+                    spacing: 8,
+                    children: [
+                      CustomSvg(asset: "assets/icons/offline.svg"),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "You’re currently offline",
+                              style: AppTexts.txlm,
+                            ),
+                            Text(
+                              "Tap to start receiving nearby delivery requests",
+                              style: AppTexts.tsmr.copyWith(
+                                color: AppColors.neutral.shade700,
                               ),
-                              Text(
-                                "Tap to start receiving nearby delivery requests",
-                                style: AppTexts.tsmr.copyWith(
-                                  color: AppColors.neutral.shade700,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-              if (controller.isOnline.value &&
-                  controller.currentDelivery.value == null &&
-                  !runningTrip)
-                IgnorePointer(
-                  ignoring: true,
-                  child: Center(
-                    child: Lottie.asset("assets/lottie/ripple.json"),
-                  ),
+              ),
+            if (controller.isOnline.value &&
+                controller.currentDelivery.value == null &&
+                !controller.isOngoing)
+              IgnorePointer(
+                ignoring: true,
+                child: Center(child: Lottie.asset("assets/lottie/ripple.json")),
+              ),
+            if (controller.isOnline.value &&
+                (controller.currentDelivery.value != null || controller.isOngoing))
+              AnimatedPositioned(
+                duration: Duration(milliseconds: 300),
+                bottom: controller.isOngoing ? null : 30,
+                top: controller.isOngoing ? 24 : null,
+                left: 16,
+                right: 16,
+                child: DriverOrderWidget(
+                  delivery: controller.currentDelivery.value!,
+                  isExpandable:
+                      (mapsController.pickupLocation.value != null &&
+                      mapsController.dropoffLocation.value != null),
                 ),
-              if (controller.isOnline.value &&
-                  (controller.currentDelivery.value != null || runningTrip))
-                AnimatedPositioned(
-                  duration: Duration(milliseconds: 300),
-                  bottom: runningTrip ? null : 30,
-                  top: runningTrip ? 24 : null,
-                  left: 16,
-                  right: 16,
-                  child: DriverOrderWidget(
-                    delivery: controller.currentDelivery.value!,
-                  ),
-                ),
-            ],
-          ),
+              ),
+          ],
+        ),
       );
     });
   }

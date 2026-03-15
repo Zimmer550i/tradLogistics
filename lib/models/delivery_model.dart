@@ -4,6 +4,7 @@ enum Status {
   pending,
   searching,
   driverAssigned,
+  goingToPickUp,
   pickedUp,
   inTransit,
   delivered,
@@ -53,6 +54,8 @@ class StatusHelper {
       case Status.searching:
         return 'searching';
       case Status.driverAssigned:
+        return 'driver_assigned';
+      case Status.goingToPickUp:
         return 'driver_assigned';
       case Status.pickedUp:
         return 'picked_up';
