@@ -29,7 +29,7 @@ class UserWelcome extends StatelessWidget {
               Spacer(flex: 2),
               CustomButton(
                 onTap: () {
-                  Get.off(() => App(isUser: true));
+                  Get.off(() => App(key: appKey, isUser: true));
                 },
                 text: "Continue",
               ),

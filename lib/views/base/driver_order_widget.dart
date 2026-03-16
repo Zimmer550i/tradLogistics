@@ -20,13 +20,13 @@ import 'package:url_launcher/url_launcher.dart';
 class DriverOrderWidget extends StatefulWidget {
   final DeliveryModel delivery;
   final bool isExpandable;
-  final bool showAdditionalInfo;
+  final bool isHistory;
   final bool isUser;
   const DriverOrderWidget({
     super.key,
     required this.delivery,
     this.isUser = false,
-    this.showAdditionalInfo = false,
+    this.isHistory = false,
     this.isExpandable = false,
   });
 
@@ -83,15 +83,24 @@ class _OrderWidgetState extends State<DriverOrderWidget> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  widget.delivery.pickupAddress,
-                                  style: AppTexts.tsmr,
+                                SizedBox(
+                                  height: 26,
+                                  child: Text(
+                                    widget.delivery.pickupAddress,
+                                    style: AppTexts.tsmr,
+                                  ),
                                 ),
                                 if (widget.delivery.serviceType !=
                                     ServiceType.cookingGas)
-                                  Text(
-                                    widget.delivery.dropoffAddress,
-                                    style: AppTexts.tsmr,
+                                  SizedBox(
+                                    height: 26,
+                                    child: Align(
+                                      alignment: Alignment.bottomLeft,
+                                      child: Text(
+                                        widget.delivery.dropoffAddress,
+                                        style: AppTexts.tsmr,
+                                      ),
+                                    ),
                                   ),
                               ],
                             ),
@@ -290,7 +299,104 @@ class _OrderWidgetState extends State<DriverOrderWidget> {
   }
 
   Widget getActionButtons() {
+    if (widget.isHistory) {
+      return Row(
+        spacing: 12,
+        children: [
+          Expanded(
+            child: CustomButton(
+              padding: 0,
+              leading: "assets/icons/close.svg",
+              onTap: () => controller.declineDelivery(),
+              text: "Cancel",
+              isSecondary: true,
+            ),
+          ),
+          Expanded(
+            child: CustomButton(
+              padding: 0,
+              leading: "assets/icons/navigate.svg",
+              onTap: () async {
+                setAppTab(0);
+                final map = Get.find<MapsController>();
+                final driverController = Get.find<DriverDeliveryController>();
+                driverController.currentDelivery.value = widget.delivery;
+
+                if (!driverController.isOnline.value) {
+                  await driverController.toggleAvailability();
+                }
+                await driverController.updateDelivery();
+                final delivery = driverController.data;
+
+                final pickupLat = delivery.pickupLat;
+                final pickupLng = delivery.pickupLng;
+
+                if (pickupLat == null || pickupLng == null) {
+                  ErrorHandler.showSnackbar("Pickup location is unavailable");
+                  return;
+                }
+
+                final pickup = LatLng(pickupLat, pickupLng);
+                map.startNavigation().then((val) {
+                  map.setCurrentLocationAsPickup();
+                  map.dropoffLocation(pickup);
+                });
+                controller.currentDelivery.value?.status = Status.goingToPickUp;
+              },
+              text: "Navigate",
+            ),
+          ),
+        ],
+      );
+    }
     switch (widget.delivery.status) {
+      case Status.goingToPickUp:
+        return Row(
+          spacing: 12,
+          children: [
+            Expanded(
+              child: CustomButton(
+                padding: 0,
+                leading: "assets/icons/close.svg",
+                onTap: () => controller.declineDelivery(),
+                text: "Cancel",
+                isSecondary: true,
+              ),
+            ),
+            Expanded(
+              child: CustomButton(
+                padding: 0,
+                leading: "assets/icons/navigate.svg",
+                onTap: () async {
+                  setAppTab(0);
+                  final map = Get.find<MapsController>();
+                  final driverController = Get.find<DriverDeliveryController>();
+                  driverController.currentDelivery.value = widget.delivery;
+
+                  await driverController.updateDelivery();
+                  final delivery = driverController.data;
+
+                  final pickupLat = delivery.pickupLat;
+                  final pickupLng = delivery.pickupLng;
+
+                  if (pickupLat == null || pickupLng == null) {
+                    ErrorHandler.showSnackbar("Pickup location is unavailable");
+                    return;
+                  }
+
+                  final pickup = LatLng(pickupLat, pickupLng);
+                  map.startNavigation().then((val) {
+                    map.setCurrentLocationAsPickup();
+                    map.dropoffLocation(pickup);
+                  });
+                  controller.currentDelivery.value?.status =
+                      Status.goingToPickUp;
+                },
+                text: "Navigate",
+              ),
+            ),
+          ],
+        );
       case Status.driverAssigned:
         return Row(
           spacing: 12,

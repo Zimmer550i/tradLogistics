@@ -37,7 +37,10 @@ class DriverWelcome extends StatelessWidget {
               Spacer(flex: 2),
               CustomButton(
                 onTap: () {
-                  Get.to(() => App(isUser: false), routeName: "/app");
+                  Get.to(
+                    () => App(key: appKey, isUser: false),
+                    routeName: "/app",
+                  );
                 },
                 text: "Go Online",
               ),

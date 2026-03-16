@@ -94,11 +94,14 @@ class DriverDeliveryController extends BaseController {
     _onlinePoller = Timer.periodic(const Duration(seconds: 5), (_) {
       if (currentDelivery.value == null) {
         fetchAvailableDelivery();
-      } else if (currentDelivery.value?.status == Status.driverAssigned) {
+      } else {
+        updateDelivery();
+      }
+
+      if (currentDelivery.value?.status == Status.driverAssigned) {
         // Driver Position
       }
     });
-    fetchAvailableDelivery();
   }
 
   void _stopOnlinePolling() {

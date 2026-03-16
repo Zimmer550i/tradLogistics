@@ -130,7 +130,7 @@ class _OrdersState extends State<Orders> {
                     // Because it matches best with the Design
                     // Dumb designer
                     for (var i in getList())
-                      DriverOrderWidget(delivery: i, showAdditionalInfo: true),
+                      DriverOrderWidget(delivery: i, isHistory: true),
                     const SizedBox(height: 16),
                   ],
                 ),

@@ -41,12 +41,15 @@ class AuthController extends BaseController {
         if (profile['first_name'] == null || profile['phone'] == null) {
           Get.offAll(() => UserPersonalInformation());
         } else {
-          Get.offAll(() => App(isUser: true), routeName: "/app");
+          Get.offAll(
+            () => App(key: appKey, isUser: true),
+            routeName: "/app",
+          );
         }
       } else {
         // Driver — step by step check
         if (data['data']['d_type'] == "gas") {
-          Get.offAll(() => App(isUser: false), routeName: "/app");
+          Get.offAll(() => App(key: appKey, isUser: false), routeName: "/app");
         } else if (profile['first_name'] == null || profile['phone'] == null) {
           Get.offAll(() => DriverPersonalInformation());
         } else if (profile['vehicle'] == null) {
@@ -56,7 +59,7 @@ class AuthController extends BaseController {
         } else if (profile['is_verified'] == false) {
           Get.offAll(() => DriverDocumentReview());
         } else {
-          Get.offAll(() => App(isUser: false), routeName: "/app");
+          Get.offAll(() => App(key: appKey, isUser: false), routeName: "/app");
         }
       }
     } catch (_) {
@@ -93,13 +96,16 @@ class AuthController extends BaseController {
         Get.find<UserProfileController>().getUserProfile();
         if (data['data']['role'] == 'customer') {
           if (data['data']['first_name'] != null) {
-            Get.offAll(() => App(isUser: true), routeName: "/app");
+            Get.offAll(() => App(key: appKey, isUser: true), routeName: "/app");
           } else {
             Get.off(() => UserPersonalInformation());
           }
         } else {
           if (data['data']['d_type'] == "gas") {
-            Get.offAll(() => App(isUser: false), routeName: "/app");
+            Get.offAll(
+              () => App(key: appKey, isUser: false),
+              routeName: "/app",
+            );
           } else if (data['data']['first_name'] == null) {
             Get.offAll(() => DriverPersonalInformation());
           } else if (data['data']['vehicle'] == null) {
@@ -109,7 +115,10 @@ class AuthController extends BaseController {
           } else if (data['data']['is_verified'] == false) {
             Get.offAll(() => DriverDocumentReview());
           } else {
-            Get.offAll(() => App(isUser: false), routeName: "/app");
+            Get.offAll(
+              () => App(key: appKey, isUser: false),
+              routeName: "/app",
+            );
           }
         }
       }

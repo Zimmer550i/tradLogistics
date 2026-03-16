@@ -17,8 +17,10 @@ class DriverDocumentReview extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: SafeArea(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Spacer(),
+              const SizedBox(width: double.infinity),
               Lottie.asset("assets/lottie/hourglass.json", height: 200),
               const SizedBox(height: 24),
               Text(
