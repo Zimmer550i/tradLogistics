@@ -56,9 +56,9 @@ class DriverDeliveryController extends BaseController {
       final payload = data is Map<String, dynamic> && data['data'] is List
           ? data['data']
           : data;
-      if (payload is List && payload.isNotEmpty) {
+      if (payload != {}) {
         currentDelivery.value = DeliveryModel.fromJson(
-          payload.first as Map<String, dynamic>,
+          payload as Map<String, dynamic>,
         );
         await updateDelivery();
       } else {
